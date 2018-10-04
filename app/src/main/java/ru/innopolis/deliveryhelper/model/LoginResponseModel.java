@@ -2,12 +2,13 @@ package ru.innopolis.deliveryhelper.model;
 
 import com.google.gson.annotations.SerializedName;
 
-public class LoginModel {
-    @SerializedName("non_field_errors")
+public class LoginResponseModel {
+    @SerializedName("non_field_error")
     private String errorMessage;
 
     @SerializedName("token")
     private String sessionToken;
+
 
     @Override
     public String toString() {

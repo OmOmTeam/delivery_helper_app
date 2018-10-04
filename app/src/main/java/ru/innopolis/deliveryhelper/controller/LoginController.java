@@ -12,6 +12,7 @@ public class LoginController implements LoginMVC.Controller {
     }
 
     @Override
-    public void check() {
+    public void tryLogin(String login, String password) {
+
     }
 }

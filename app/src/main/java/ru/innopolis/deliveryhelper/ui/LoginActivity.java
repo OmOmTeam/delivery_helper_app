@@ -4,10 +4,17 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.design.widget.Snackbar;
 import android.util.Base64;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.UnsupportedEncodingException;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import de.adorsys.android.securestoragelibrary.SecurePreferences;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -15,12 +22,18 @@ import ru.innopolis.deliveryhelper.LoginMVC;
 import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.controller.LoginController;
 import ru.innopolis.deliveryhelper.model.ApiInterface;
-import ru.innopolis.deliveryhelper.model.LoginModel;
 import ru.innopolis.deliveryhelper.model.RetrofitService;
 
 public class LoginActivity extends AppCompatActivity implements LoginMVC.View{
 
     private LoginMVC.Controller controller;
+
+    @BindView(R.id.master_login)
+    TextView loginField;
+    @BindView(R.id.master_password)
+    TextView passwordField;
+    @BindView(R.id.button_login)
+    Button loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +41,15 @@ public class LoginActivity extends AppCompatActivity implements LoginMVC.View{
         setContentView(R.layout.activity_login);
         controller = new LoginController(this);
 
+        ButterKnife.bind(this);
+        loginButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                String login = loginField.getText().toString().trim(), password = passwordField.getText().toString().trim();
+                controller.tryLogin(login, password);
+                showDismissableNotification("Hello, App!");
+            }
+        });
     }
 
     @Override
@@ -37,23 +59,23 @@ public class LoginActivity extends AppCompatActivity implements LoginMVC.View{
 
     @Override
     public void showNotification(String message) {
-
+        View parentLayout = findViewById(android.R.id.content);
+        Snackbar mySnackbar = Snackbar.make(parentLayout, message, Snackbar.LENGTH_LONG);
+        mySnackbar.show();
     }
 
-    public static String getAuthToken() {
-        byte[] data = new byte[0];
-        try {
-            data = ("admin" + ":" + "12345").getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return "Basic " + Base64.encodeToString(data, Base64.NO_WRAP);
+    //TODO: extend this method to interface
+    public void showDismissableNotification(String message){
+        View parentLayout = findViewById(android.R.id.content);
+        final Snackbar snack = Snackbar.make(parentLayout, message, Snackbar.LENGTH_INDEFINITE);
+        snack.setAction(R.string.CLOSE, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                snack.dismiss();
+            }
+        });
+        snack.show();
     }
 
-//    public static void getHomePage(Callback<LoginModel> callback) {
-//        Call<LoginModel> call = RetrofitService.getInstance().create(ApiInterface.class).login(
-//                getAuthToken(),
-//        );
-//        call.enqueue(callback);
-//    }
 }
+
