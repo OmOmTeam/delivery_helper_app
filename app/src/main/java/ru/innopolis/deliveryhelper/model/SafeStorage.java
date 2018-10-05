@@ -14,26 +14,24 @@ public class SafeStorage {
     private final static String PASSWORD = "password_key";
     private final static String TOKEN = "token_key";
 
-    void setUsername(String username) {
+    static public void setUsername(String username) {
         SecurePreferences.setValue(USERNAME, username);
     }
-    String getUsername() {
+    static public String getUsername() {
         return SecurePreferences.getStringValue(USERNAME, null);
     }
 
-    void setPassword(String password) {
+    static public void setPassword(String password) {
         SecurePreferences.setValue(PASSWORD, password);
     }
-
-    String getPassword() {
+    static public String getPassword() {
         return SecurePreferences.getStringValue(PASSWORD, null);
     }
 
-    void setToken(String token) {
+    static public void setToken(String token) {
         SecurePreferences.setValue(TOKEN, token);
     }
-
-    String getToken() {
+    static public String getToken() {
         return SecurePreferences.getStringValue(TOKEN,null);
     }
 
@@ -51,7 +49,7 @@ public class SafeStorage {
         return sb.toString();
     }
 
-    public static String sha256(String input) throws NoSuchAlgorithmException {
-        return bytesToHexString(MessageDigest.getInstance("SHA-256").digest(input.getBytes(StandardCharsets.UTF_8)));
+    public static String hash(String input) throws NoSuchAlgorithmException {
+        return bytesToHexString(MessageDigest.getInstance("SHA-2").digest(input.getBytes(StandardCharsets.UTF_8)));
     }
 }

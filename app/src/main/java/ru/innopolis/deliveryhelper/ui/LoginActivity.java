@@ -45,16 +45,18 @@ public class LoginActivity extends AppCompatActivity implements LoginMVC.View{
         loginButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                String login = loginField.getText().toString().trim(), password = passwordField.getText().toString().trim();
+                String login = loginField.getText().toString().trim(),
+                        password = passwordField.getText().toString().trim();
                 controller.tryLogin(login, password);
-                showDismissableNotification("Hello, App!");
+                showDismissableNotification("Attempting to login");
             }
         });
     }
 
     @Override
-    public void setCredentials() {
-
+    public void setCredentials(String login, String password) {
+        this.loginButton.setText(login);
+        this.passwordField.setText(password);
     }
 
     @Override
