@@ -13,9 +13,8 @@ import retrofit2.http.POST;
 public interface ApiInterface {
 
     @POST("available_orders")
-    Call<List<ItemResponseModel>> getOrders(@Header("token") String token);
+    Call<List<ItemResponseModel>> getOrders(@Header("Token") String token);
 
-    @FormUrlEncoded
     @POST("login")
-    Call<LoginResponseModel> login(@Field("login") String login, @Field("password") String password);
+    Call<LoginResponseModel> login(@Body RequestBody credentials);
 }

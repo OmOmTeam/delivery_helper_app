@@ -50,6 +50,7 @@ public class SafeStorage {
     }
 
     public static String hash(String input) throws NoSuchAlgorithmException {
-        return bytesToHexString(MessageDigest.getInstance("SHA-2").digest(input.getBytes(StandardCharsets.UTF_8)));
+        return input;
+        //return bytesToHexString(MessageDigest.getInstance("SHA-256").digest(input.getBytes(StandardCharsets.UTF_8)));
     }
 }

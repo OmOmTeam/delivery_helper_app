@@ -1,6 +1,7 @@
 package ru.innopolis.deliveryhelper.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
@@ -48,7 +49,7 @@ public class LoginActivity extends AppCompatActivity implements LoginMVC.View{
                 String login = loginField.getText().toString().trim(),
                         password = passwordField.getText().toString().trim();
                 controller.tryLogin(login, password);
-                showDismissableNotification("Attempting to login");
+                //showDismissableNotification("Attempting to login");
             }
         });
     }
@@ -77,6 +78,12 @@ public class LoginActivity extends AppCompatActivity implements LoginMVC.View{
             }
         });
         snack.show();
+    }
+
+    public void goToOrderListActivity() {
+        Intent intent = new Intent(LoginActivity.this, OrderListActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
 }
