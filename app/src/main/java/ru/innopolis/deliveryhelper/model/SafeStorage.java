@@ -53,4 +53,10 @@ public class SafeStorage {
         return input;
         //return bytesToHexString(MessageDigest.getInstance("SHA-256").digest(input.getBytes(StandardCharsets.UTF_8)));
     }
+
+    public static void clearCredentials() {
+        setToken("");
+        setUsername("");
+        setPassword("");
+    }
 }

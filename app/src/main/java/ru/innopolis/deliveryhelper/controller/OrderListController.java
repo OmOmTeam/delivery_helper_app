@@ -6,6 +6,7 @@ import ru.innopolis.deliveryhelper.LoginMVC;
 import ru.innopolis.deliveryhelper.OrderListMVC;
 import ru.innopolis.deliveryhelper.model.ApiInterface;
 import ru.innopolis.deliveryhelper.model.RetrofitService;
+import ru.innopolis.deliveryhelper.model.SafeStorage;
 
 public class OrderListController implements OrderListMVC.Controller {
 
@@ -21,4 +22,9 @@ public class OrderListController implements OrderListMVC.Controller {
         api = RetrofitService.getInstance().create(ApiInterface.class);
     }
 
+    @Override
+    public void logOut() {
+        SafeStorage.clearCredentials();
+        view.returnToLoginActivity();
+    }
 }
