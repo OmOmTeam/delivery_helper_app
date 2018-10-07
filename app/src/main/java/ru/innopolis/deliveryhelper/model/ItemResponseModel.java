@@ -7,36 +7,34 @@ import com.google.gson.annotations.SerializedName;
 import java.util.Date;
 
 public class ItemResponseModel {
-    @SerializedName("item_id")
+    @SerializedName("order_id")
     private String itemId;
-    @SerializedName("item_type")
-    private Integer itemType;
+    @SerializedName("order_type")
+    private String itemType;
     @SerializedName("destination")
-    private Location destination;
+    private String destination;
     @SerializedName("address")
     private String destinationAddress;
     @SerializedName("description")
     private String description;
-    @SerializedName("non_field_error")
+    @SerializedName("error")
     private String error;
     @SerializedName("dimensions")
-    private Double[] dimensions;
+    private String dimensions;
     @SerializedName("weight")
-    private Double weight;
-    @SerializedName("scheduled_delivery_time")
-    private Date scheduledDeliveryTime;
+    private String weight;
     @SerializedName("delivery_state")
-    private Integer deliveryState;
+    private String deliveryState;
     @SerializedName("assigned_to")
     private String assignedTo;
-
-    public Double[] getDimensions() {
-        return dimensions;
-    }
-
-    public void setDimensions(Double[] dimensions) {
-        this.dimensions = dimensions;
-    }
+    @SerializedName("delivery_time_from")
+    private String deliveryTimeFrom;
+    @SerializedName("deliveryT_time_to")
+    private String deliveryTimeTo;
+    @SerializedName("customer_phone")
+    private String customerPhone;
+    @SerializedName("customer_name")
+    private String customerName;
 
     public String getItemId() {
         return itemId;
@@ -46,19 +44,19 @@ public class ItemResponseModel {
         this.itemId = itemId;
     }
 
-    public Integer getItemType() {
+    public String getItemType() {
         return itemType;
     }
 
-    public void setItemType(Integer itemType) {
+    public void setItemType(String itemType) {
         this.itemType = itemType;
     }
 
-    public Location getDestination() {
+    public String getDestination() {
         return destination;
     }
 
-    public void setDestination(Location destination) {
+    public void setDestination(String destination) {
         this.destination = destination;
     }
 
@@ -86,27 +84,27 @@ public class ItemResponseModel {
         this.error = error;
     }
 
-    public Double getWeight() {
+    public String getDimensions() {
+        return dimensions;
+    }
+
+    public void setDimensions(String dimensions) {
+        this.dimensions = dimensions;
+    }
+
+    public String getWeight() {
         return weight;
     }
 
-    public void setWeight(Double weight) {
+    public void setWeight(String weight) {
         this.weight = weight;
     }
 
-    public Date getScheduledDeliveryTime() {
-        return scheduledDeliveryTime;
-    }
-
-    public void setScheduledDeliveryTime(Date scheduledDeliveryTime) {
-        this.scheduledDeliveryTime = scheduledDeliveryTime;
-    }
-
-    public Integer getDeliveryState() {
+    public String getDeliveryState() {
         return deliveryState;
     }
 
-    public void setDeliveryState(Integer deliveryState) {
+    public void setDeliveryState(String deliveryState) {
         this.deliveryState = deliveryState;
     }
 
@@ -116,5 +114,37 @@ public class ItemResponseModel {
 
     public void setAssignedTo(String assignedTo) {
         this.assignedTo = assignedTo;
+    }
+
+    public String getDeliveryTimeFrom() {
+        return deliveryTimeFrom;
+    }
+
+    public void setDeliveryTimeFrom(String deliveryTimeFrom) {
+        this.deliveryTimeFrom = deliveryTimeFrom;
+    }
+
+    public String getDeliveryTimeTo() {
+        return deliveryTimeTo;
+    }
+
+    public void setDeliveryTimeTo(String deliveryTimeTo) {
+        this.deliveryTimeTo = deliveryTimeTo;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 }

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,12 +18,14 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import ru.innopolis.deliveryhelper.OrderEntryAdapterCallback;
 import ru.innopolis.deliveryhelper.R;
 
 public class OrderEntryAdapter extends ArrayAdapter<OrderEntry> {
     private Context oContext;
     private List<OrderEntry> orderList = new ArrayList<>();
 
+    OrderEntryAdapterCallback callback;
     /**
      * Adapter for the applet list
      */
@@ -44,12 +47,25 @@ public class OrderEntryAdapter extends ArrayAdapter<OrderEntry> {
         TextView title = listItem.findViewById(R.id.order_entry_title);
         TextView address = listItem.findViewById(R.id.order_entry_address);
         TextView weight = listItem.findViewById(R.id.order_entry_weight);
+        Button btn = listItem.findViewById(R.id.order_accept_button);
 
         image.setImageResource(currentEntry.getIcon());
         title.setText(currentEntry.getTitle());
         address.setText(currentEntry.getAddress());
         weight.setText(currentEntry.getWeight());
 
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.assignOrder(currentEntry.getOrderId());
+            }
+        });
+
         return listItem;
     }
+
+    public void setCallback(OrderEntryAdapterCallback callback){
+        this.callback = callback;
+    }
+
 }

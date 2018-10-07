@@ -13,8 +13,11 @@ import retrofit2.http.POST;
 public interface ApiInterface {
 
     @POST("available_orders")
-    Call<List<ItemResponseModel>> getOrders(@Header("Token") String token);
+    Call<List<ItemHeaderResponseModel>> getOrderList(@Header("Token") String token);
 
     @POST("login")
     Call<LoginResponseModel> login(@Body RequestBody credentials);
+
+    @POST("order_details")
+    Call<ItemResponseModel> getOrderDetails(@Header("Token") String token, @Body RequestBody parameters);
 }

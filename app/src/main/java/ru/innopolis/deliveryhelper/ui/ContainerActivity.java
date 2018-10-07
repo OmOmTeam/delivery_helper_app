@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -15,20 +16,16 @@ import android.view.MenuItem;
 import android.view.View;
 
 
-import java.util.ArrayList;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import ru.innopolis.deliveryhelper.Notifiable;
-import ru.innopolis.deliveryhelper.OrderListMVC;
+import ru.innopolis.deliveryhelper.ContainerMVC;
 import ru.innopolis.deliveryhelper.R;
-import ru.innopolis.deliveryhelper.controller.LoginController;
-import ru.innopolis.deliveryhelper.controller.OrderListController;
+import ru.innopolis.deliveryhelper.controller.ContainerController;
 
 
-public class OrderListActivity extends AppCompatActivity implements OrderListMVC.View {
+public class ContainerActivity extends AppCompatActivity implements ContainerMVC.View {
 
-    private OrderListMVC.Controller controller;
+    private ContainerMVC.Controller controller;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -45,7 +42,7 @@ public class OrderListActivity extends AppCompatActivity implements OrderListMVC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.order_list_activity);
 
-        controller = new OrderListController(this);
+        controller = new ContainerController(this);
         fragmentManager = getSupportFragmentManager();
 
         ButterKnife.bind(this);
@@ -71,53 +68,89 @@ public class OrderListActivity extends AppCompatActivity implements OrderListMVC
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                boolean isExitInvoked = false;
-                Fragment fragment = null;
-                Class fragmentClass = null;
                 switch(menuItem.getItemId()) {
                     case R.id.nav_logout:
-                        isExitInvoked = true;
+                        controller.logOut();
                         break;
                     case R.id.nav_all:
-                        fragmentClass = OrderListFragment.class;
+                        openOrderList();
                         break;
                     case R.id.nav_assigned:
-                        fragmentClass = NotImplementedActivityFragment.class;
+                        openAssignedOrderList();
                         break;
                     case R.id.nav_settings:
-                        fragmentClass = NotImplementedActivityFragment.class;
+                        openSettings();
                         break;
                     default:
-                        fragmentClass = NotImplementedActivityFragment.class;
+                        openOrderList();
                 }
-
-                if(!isExitInvoked) {
-                    try {
-                        fragment = (Fragment) fragmentClass.newInstance();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    // Insert the fragment by replacing any existing fragment
-                    fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit();
-
-                    menuItem.setChecked(true);
-                    setTitle(menuItem.getTitle());
-                    mDrawerLayout.closeDrawers();
-                }else{
-                    controller.logOut();
-                }
+                menuItem.setChecked(true);
+                mDrawerLayout.closeDrawers();
                 return true;
             }
         });
 
     }
 
+    private void setFragment(Class fragmentClass, String title) {
+        Fragment fragment = null;
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit();
+        setTitle(title);
+    }
+
+    private void setFragmentWithExtra(Class fragmentClass, String title, String extraKey, String extraValue) {
+        Fragment fragment = null;
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Bundle bundle = new Bundle();
+        bundle.putString(extraKey, extraValue);
+        fragment.setArguments(bundle);
+
+        fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit();
+        setTitle(title);
+    }
+
+    @Override
+    public void openOrderList() {
+        setFragment(OrderListFragment.class, "Order List");
+    }
+
+    @Override
+    public void openOrderView(String orderId) {
+        setFragmentWithExtra(OrderViewFragment.class, "Order View", "ORDER_ID_KEY", orderId);
+    }
+
+    @Override
+    public void openAssignedOrderList() {
+        setFragment(AssignedOrderListFragment.class, "Confirmed Orders");
+    }
+
+    @Override
+    public void openCurrentOrder() {
+        setFragment(NotImplementedActivityFragment.class, "Delivery");
+    }
+
+    @Override
+    public void openSettings() {
+        setFragment(NotImplementedActivityFragment.class, "Settings");
+    }
+
     public void returnToLoginActivity(){
-        Intent intent = new Intent(OrderListActivity.this, LoginActivity.class);
+        Intent intent = new Intent(ContainerActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -131,6 +164,14 @@ public class OrderListActivity extends AppCompatActivity implements OrderListMVC
 
     @Override
     public void showNotification(String message) {
+        View parentLayout = findViewById(android.R.id.content);
+        Snackbar mySnackbar = Snackbar.make(parentLayout, message, Snackbar.LENGTH_LONG);
+        mySnackbar.show();
     }
+
+    public ContainerMVC.Controller getController() {
+        return controller;
+    }
+
 
 }

@@ -4,8 +4,18 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <ListView
-        android:id="@+id/all_orders_listview"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+        <ProgressBar
+            android:id="@+id/order_list_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:scrollbarStyle="outsideInset"/>
+        <ListView
+            android:id="@+id/all_orders_listview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </RelativeLayout>
 </LinearLayout>

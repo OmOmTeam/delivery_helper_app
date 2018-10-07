@@ -2,6 +2,7 @@ package ru.innopolis.deliveryhelper.ui;
 
 public class OrderEntry {
 
+    private String orderId;
     private String title;
     private String address;
     private String weight;
@@ -9,13 +10,18 @@ public class OrderEntry {
     private String distance_from_warehouse;
     private int icon;
 
-    public OrderEntry(String title, String address, String weight, String dimensions, String distance_from_warehouse, int icon) {
+    public OrderEntry(String orderId, String title, String address, String weight, String dimensions, String distance_from_warehouse, int icon) {
+        this.orderId = orderId;
         this.title = title;
         this.address = address;
         this.weight = weight;
         this.dimensions = dimensions;
         this.distance_from_warehouse = distance_from_warehouse;
         this.icon = icon;
+    }
+
+    public String getOrderId() {
+        return orderId;
     }
 
     public String getTitle() {
@@ -41,4 +47,5 @@ public class OrderEntry {
     public int getIcon() {
         return icon;
     }
+
 }

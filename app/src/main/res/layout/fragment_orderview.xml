@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/order_view_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3" >
+
+        <ImageView
+            android:id="@+id/image_holder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/colorPrimary"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3">
+
+            <ProgressBar
+                android:id="@+id/details_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:scrollbarStyle="outsideInset"/>
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbarSize="10dp"
+                android:fadeScrollbars="false"
+                android:scrollbarThumbVertical="@color/colorPrimary">
+                <TableLayout
+                    android:id="@+id/order_view_details"
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:stretchColumns="*"
+                    android:padding="10dp">
+                    <!--android:stretchColumns="*"-->
+                    <!--android:shrinkColumns="*"-->
+
+                </TableLayout>
+            </ScrollView>
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/colorPrimary"/>
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="5dp"
+        android:orientation="horizontal">
+
+        <TableRow>
+
+            <Button
+                android:id="@+id/order_view_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:layout_weight="1"
+                android:background="@color/colorShaded"
+                android:text="Close"/>
+            <Button
+                android:id="@+id/order_view_action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textColor="@color/white"
+                android:background="@color/colorGreen"
+                android:layout_weight="1"
+                android:text="Accept"/>
+        </TableRow>
+
+    </TableLayout>
+
+</LinearLayout>

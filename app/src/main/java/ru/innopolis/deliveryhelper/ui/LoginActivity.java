@@ -1,29 +1,18 @@
 package ru.innopolis.deliveryhelper.ui;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.design.widget.Snackbar;
-import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
-
-import java.io.UnsupportedEncodingException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.adorsys.android.securestoragelibrary.SecurePreferences;
-import retrofit2.Call;
-import retrofit2.Callback;
 import ru.innopolis.deliveryhelper.LoginMVC;
 import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.controller.LoginController;
-import ru.innopolis.deliveryhelper.model.ApiInterface;
-import ru.innopolis.deliveryhelper.model.RetrofitService;
 
 public class LoginActivity extends AppCompatActivity implements LoginMVC.View{
 
@@ -81,7 +70,7 @@ public class LoginActivity extends AppCompatActivity implements LoginMVC.View{
     }
 
     public void goToOrderListActivity() {
-        Intent intent = new Intent(LoginActivity.this, OrderListActivity.class);
+        Intent intent = new Intent(LoginActivity.this, ContainerActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
