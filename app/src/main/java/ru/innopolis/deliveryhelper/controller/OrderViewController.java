@@ -4,19 +4,15 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
-import java.util.List;
-
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import ru.innopolis.deliveryhelper.OrderListMVC;
 import ru.innopolis.deliveryhelper.OrderViewMVC;
 import ru.innopolis.deliveryhelper.model.ApiInterface;
-import ru.innopolis.deliveryhelper.model.GetDetailsRequestModel;
-import ru.innopolis.deliveryhelper.model.ItemHeaderResponseModel;
-import ru.innopolis.deliveryhelper.model.ItemResponseModel;
+import ru.innopolis.deliveryhelper.model.dataframes.request.ItemRequestModel;
+import ru.innopolis.deliveryhelper.model.dataframes.response.ItemResponseModel;
 import ru.innopolis.deliveryhelper.model.RetrofitService;
 import ru.innopolis.deliveryhelper.model.SafeStorage;
 
@@ -36,7 +32,7 @@ public class OrderViewController implements OrderViewMVC.Controller {
 
     public void loadDetailList(String orderId) {
         try {
-            GetDetailsRequestModel gtrm = new GetDetailsRequestModel(orderId);
+            ItemRequestModel gtrm = new ItemRequestModel(orderId,SafeStorage.getUsername());
             Call<ItemResponseModel> call = api.getOrderDetails(SafeStorage.getToken(), RequestBody.create(MediaType.parse("application/json"), gson.toJson(gtrm)));
             call.enqueue(new Callback<ItemResponseModel>() {
                 @Override
@@ -47,10 +43,18 @@ public class OrderViewController implements OrderViewMVC.Controller {
                         if(irm.getError()==null||irm.getError().equals("null")){
 
                             view.addDetailEntity("Order ID", irm.getItemId());
-                            view.addDetailEntity("Destination", irm.getDestinationAddress());
+                            view.addDetailEntity("Location", irm.getDestination());
+                            view.addDetailEntity("Address", irm.getDestinationAddress());
+                            view.addDetailEntity("Dimensions", irm.getDimensions());
+                            view.addDetailEntity("Weight", irm.getWeight());
+                            view.addDetailEntity("Status", irm.getDeliveryState());
                             view.addDetailEntity("Customer", irm.getCustomerName());
                             view.addDetailEntity("Customer Phone", irm.getCustomerPhone());
+                            view.addDetailEntity("Assigned To",irm.getAssignedTo());
+                            view.addDetailEntity("Delivery Time From",irm.getDeliveryTimeFrom());
+                            view.addDetailEntity("Delivery Time To",irm.getDeliveryTimeTo());
                             view.hideProgressBar();
+                            view.setActionState(irm.getStatus());
                         }else{
                             view.showNotification(irm.getError());
                         }

@@ -13,11 +13,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import ru.innopolis.deliveryhelper.LoginMVC;
 import ru.innopolis.deliveryhelper.model.ApiInterface;
-import ru.innopolis.deliveryhelper.model.LoginRequestModel;
-import ru.innopolis.deliveryhelper.model.LoginResponseModel;
+import ru.innopolis.deliveryhelper.model.dataframes.request.LoginRequestModel;
+import ru.innopolis.deliveryhelper.model.dataframes.response.LoginResponseModel;
 import ru.innopolis.deliveryhelper.model.RetrofitService;
 import ru.innopolis.deliveryhelper.model.SafeStorage;
-import ru.innopolis.deliveryhelper.ui.LoginActivity;
 
 public class LoginController implements LoginMVC.Controller {
 

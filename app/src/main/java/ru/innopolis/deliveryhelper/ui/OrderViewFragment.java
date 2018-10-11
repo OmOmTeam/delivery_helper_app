@@ -34,7 +34,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View{
     ImageView imageHolder;
     ProgressBar progressBar;
     private boolean variator;
-
+    private int actionState;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -47,6 +47,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View{
         actionButton = view.findViewById(R.id.order_view_action);
         imageHolder = view.findViewById(R.id.image_holder);
         progressBar = view.findViewById(R.id.details_progress);
+        actionState = 2;
 
         Bundle bundle = this.getArguments();
         String order = "0";
@@ -63,6 +64,18 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View{
             @Override
             public void onClick(View v) {
                 ((ContainerActivity)getActivity()).openOrderList();
+            }
+        });
+
+        actionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(actionState==0){
+                    showNotification("Assigning delivery");
+                }else if(actionState==1){
+                    showNotification("Declining delivery");
+                }
+
             }
         });
         controller.loadDetailList(order);
@@ -111,6 +124,24 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View{
     @Override
     public void hideProgressBar() {
         progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void setActionState(int state) {
+        this.actionState = state;
+        if(state==0){
+            actionButton.setText("accept");
+            actionButton.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            actionButton.setEnabled(true);
+        }else if(state==1){
+            actionButton.setText("decline");
+            actionButton.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+            actionButton.setEnabled(true);
+        }else{
+            actionButton.setText("unavailable");
+            actionButton.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            actionButton.setEnabled(false);
+        }
     }
 
     @Override

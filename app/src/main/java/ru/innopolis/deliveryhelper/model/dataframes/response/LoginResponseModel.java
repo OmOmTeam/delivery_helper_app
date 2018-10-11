@@ -1,4 +1,4 @@
-package ru.innopolis.deliveryhelper.model;
+package ru.innopolis.deliveryhelper.model.dataframes.response;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -13,15 +13,8 @@ public class LoginResponseModel {
         return errorMessage;
     }
 
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
     public String getSessionToken() {
         return sessionToken;
     }
 
-    public void setSessionToken(String sessionToken) {
-        this.sessionToken = sessionToken;
-    }
 }

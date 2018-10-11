@@ -1,4 +1,4 @@
-package ru.innopolis.deliveryhelper.model;
+package ru.innopolis.deliveryhelper.model.dataframes;
 
 import android.location.Location;
 

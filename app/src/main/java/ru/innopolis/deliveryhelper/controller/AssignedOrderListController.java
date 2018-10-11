@@ -6,16 +6,19 @@ import com.google.gson.Gson;
 
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import ru.innopolis.deliveryhelper.OrderListMVC;
 import ru.innopolis.deliveryhelper.model.ApiInterface;
-import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseModel;
 import ru.innopolis.deliveryhelper.model.RetrofitService;
 import ru.innopolis.deliveryhelper.model.SafeStorage;
+import ru.innopolis.deliveryhelper.model.dataframes.request.ItemRequestModel;
+import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseModel;
 
-public class OrderListController implements OrderListMVC.Controller {
+public class AssignedOrderListController implements OrderListMVC.Controller {
 
 
     private final String TAG = "LoginController";
@@ -23,7 +26,7 @@ public class OrderListController implements OrderListMVC.Controller {
     private ApiInterface api;
     private Gson gson;
 
-    public OrderListController(OrderListMVC.View view) {
+    public AssignedOrderListController(OrderListMVC.View view) {
         this.view = view;
         gson = new Gson();
         api = RetrofitService.getInstance().create(ApiInterface.class);
@@ -33,7 +36,8 @@ public class OrderListController implements OrderListMVC.Controller {
         try {
             view.showProgressBar();
             view.clearList();
-            Call<List<ItemHeaderResponseModel>> call = api.getOrderList(SafeStorage.getToken());
+            ItemRequestModel irm = new ItemRequestModel("", SafeStorage.getUsername());
+            Call<List<ItemHeaderResponseModel>> call = api.getAssignedOrderList(SafeStorage.getToken(),RequestBody.create(MediaType.parse("application/json"), gson.toJson(irm)));
             call.enqueue(new Callback<List<ItemHeaderResponseModel>>() {
                 @Override
                 public void onResponse(Call<List<ItemHeaderResponseModel>> call, Response<List<ItemHeaderResponseModel>> response) {

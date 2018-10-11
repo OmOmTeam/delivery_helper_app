@@ -11,6 +11,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import java.util.ArrayList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ru.innopolis.deliveryhelper.ContainerMVC;
@@ -26,7 +27,7 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
     private OrderEntryAdapter oAdapter;
     private ListView listView;
     private OrderListMVC.Controller controller;
-    ProgressBar progressBar;
+    private ProgressBar progressBar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,10 +41,9 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, android.view.View view, int i, long l) {
-                ((ContainerActivity)getActivity()).openOrderView(orderList.get(i).getOrderId());
+                ((ContainerActivity) getActivity()).openOrderView(orderList.get(i).getOrderId());
             }
         });
-
 
         return view;
     }
@@ -56,7 +56,6 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
 
     public void updateList() {
         oAdapter = new OrderEntryAdapter(getContext(), orderList);
-        //oAdapter.setCallback(this);
         oAdapter.setCallback(this);
         listView.setAdapter(oAdapter);
         //setEmptyMessageNotificationVisibility(aAdapter.isEmpty());
@@ -65,16 +64,22 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
     @Override
     public void hideProgressBar() {
         progressBar = getView().findViewById(R.id.order_list_progress);
-        if(progressBar!=null) {
+        if (progressBar != null) {
             progressBar.setVisibility(View.GONE);
         }
     }
 
-    public void addEntity(String orderId, String title, String address, String weight, String dimensions, String distanceFromWarehouse,  String type) {
-        orderList.add(new OrderEntry(orderId, title, address, weight, dimensions, distanceFromWarehouse, R.drawable.ic_letter));
+    @Override
+    public void showProgressBar() {
+        progressBar = getView().findViewById(R.id.order_list_progress);
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
     }
 
-
+    public void addEntity(String orderId, String title, String address, String weight, String dimensions, String distanceFromWarehouse, String type) {
+        orderList.add(new OrderEntry(orderId, title, address, weight, dimensions, distanceFromWarehouse, R.drawable.ic_letter));
+    }
 
     /**
      * Delete all items from current list in activity
@@ -86,11 +91,11 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
 
     @Override
     public void showNotification(String message) {
-        ((ContainerActivity)getActivity()).showNotification(message);
+        ((ContainerActivity) getActivity()).showNotification(message);
     }
 
     @Override
     public void assignOrder(String orderId) {
-        showNotification("Trying to assign: "+orderId);
+        showNotification("Trying to assign: " + orderId);
     }
 }

@@ -1,4 +1,4 @@
-package ru.innopolis.deliveryhelper.model;
+package ru.innopolis.deliveryhelper.model.dataframes.response;
 
 import android.location.Location;
 
@@ -29,12 +29,14 @@ public class ItemResponseModel {
     private String assignedTo;
     @SerializedName("delivery_time_from")
     private String deliveryTimeFrom;
-    @SerializedName("deliveryT_time_to")
+    @SerializedName("delivery_time_to")
     private String deliveryTimeTo;
     @SerializedName("customer_phone")
     private String customerPhone;
     @SerializedName("customer_name")
     private String customerName;
+    @SerializedName("status")
+    private int status;
 
     public String getItemId() {
         return itemId;
@@ -72,79 +74,43 @@ public class ItemResponseModel {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getError() {
         return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
     }
 
     public String getDimensions() {
         return dimensions;
     }
 
-    public void setDimensions(String dimensions) {
-        this.dimensions = dimensions;
-    }
-
     public String getWeight() {
         return weight;
-    }
-
-    public void setWeight(String weight) {
-        this.weight = weight;
     }
 
     public String getDeliveryState() {
         return deliveryState;
     }
 
-    public void setDeliveryState(String deliveryState) {
-        this.deliveryState = deliveryState;
-    }
-
     public String getAssignedTo() {
         return assignedTo;
-    }
-
-    public void setAssignedTo(String assignedTo) {
-        this.assignedTo = assignedTo;
     }
 
     public String getDeliveryTimeFrom() {
         return deliveryTimeFrom;
     }
 
-    public void setDeliveryTimeFrom(String deliveryTimeFrom) {
-        this.deliveryTimeFrom = deliveryTimeFrom;
-    }
-
     public String getDeliveryTimeTo() {
         return deliveryTimeTo;
-    }
-
-    public void setDeliveryTimeTo(String deliveryTimeTo) {
-        this.deliveryTimeTo = deliveryTimeTo;
     }
 
     public String getCustomerPhone() {
         return customerPhone;
     }
 
-    public void setCustomerPhone(String customerPhone) {
-        this.customerPhone = customerPhone;
-    }
-
     public String getCustomerName() {
         return customerName;
     }
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
+    public int getStatus() {
+        return status;
     }
 }
