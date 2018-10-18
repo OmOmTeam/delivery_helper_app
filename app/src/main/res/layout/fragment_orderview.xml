@@ -8,7 +8,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3" >
+        android:layout_weight="4" >
 
         <fragment
             android:id="@+id/map_window"
@@ -21,6 +21,33 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="@color/colorPrimary"/>
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.9"
+        android:padding="5dp"
+        android:orientation="horizontal">
+    <TableRow
+        android:id="@+id/order_assigned_panel">
+        <Button
+            android:id="@+id/order_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:background="@drawable/button_stroke"
+            android:layout_weight="5"
+            android:text="Visit warehouse to pick  ➡"/>
+        <Button
+            android:id="@+id/order_confirmation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textColor="@color/white"
+            android:layout_weight="1"
+            android:background="#1d62d1"
+            android:text="receive"/>
+    </TableRow>
+    </TableLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -53,7 +80,8 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="@color/colorPrimary"/>
+        android:background="@color/colorPrimary" />
+
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -71,6 +99,10 @@
                 android:layout_weight="1"
                 android:background="@color/colorShaded"
                 android:text="Close"/>
+            <View
+                android:layout_width="10dp"
+                android:layout_height="match_parent"
+                android:background="@color/white" />
             <Button
                 android:id="@+id/order_view_action"
                 android:layout_width="wrap_content"

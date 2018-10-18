@@ -1,17 +1,23 @@
 package ru.innopolis.deliveryhelper.ui;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TableLayout;
@@ -55,6 +61,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
     TableLayout orderDetails;
     Button cancelButton;
     Button actionButton;
+    Button pickButton;
     ImageView imageHolder;
     ProgressBar progressBar;
     private boolean variator;
@@ -80,6 +87,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         orderDetails = view.findViewById(R.id.order_view_details);
         cancelButton = view.findViewById(R.id.order_view_cancel);
         actionButton = view.findViewById(R.id.order_view_action);
+        pickButton = view.findViewById(R.id.order_confirmation);
 //        imageHolder = view.findViewById(R.id.image_holder);
         progressBar = view.findViewById(R.id.details_progress);
         actionState = 2;
@@ -93,6 +101,13 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 //                showNotification("Map is ready");
                 map = googleMap;
                 drawRoute(start, end);
+            }
+        });
+
+        pickButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                receiveOrder();
             }
         });
 
@@ -299,5 +314,26 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
     @Override
     public void onRoutingCancelled() {
 
+    }
+
+    public void receiveOrder() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+        alert.setTitle("Confirm parcel is picked for delivery: ");
+        final EditText input = new EditText(getContext());
+        input.setGravity(Gravity.CENTER);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setRawInputType(Configuration.KEYBOARD_12KEY);
+        alert.setView(input);
+        alert.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //Put actions for OK button here
+            }
+        });
+        alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //Put actions for CANCEL button here, or leave in blank
+            }
+        });
+        alert.show();
     }
 }
