@@ -114,7 +114,7 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
         Bundle bundle = new Bundle();
         bundle.putString(extraKey, extraValue);
         fragment.setArguments(bundle);
-
+//        Fragment fragment = getSupportFragmentManager().findFragmentByTag(R);
         fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit();
         setTitle(title);
     }

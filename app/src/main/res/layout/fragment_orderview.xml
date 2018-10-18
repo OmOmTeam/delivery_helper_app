@@ -10,10 +10,12 @@
         android:layout_height="0dp"
         android:layout_weight="3" >
 
-        <ImageView
-            android:id="@+id/image_holder"
+        <fragment
+            android:id="@+id/map_window"
+            class="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:clickable="true"/>
     </RelativeLayout>
     <View
         android:layout_width="match_parent"
