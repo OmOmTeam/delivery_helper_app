@@ -29,6 +29,9 @@ public interface ApiInterface {
     @POST("order/accept_order")
     Call<AcceptanceModel> requestAssignOrder(@Header("Token") String token, @Body RequestBody parameters);
 
+//    @POST("order/deliver_order")
+//    Call<AcceptanceModel> requestDeliverOrder(@Header("Token") String token, @Body RequestBody parameters);
+
     @POST("order/dismiss_order")
     Call<AcceptanceModel> requestDismissOrder(@Header("Token") String token, @Body RequestBody parameters);
 }

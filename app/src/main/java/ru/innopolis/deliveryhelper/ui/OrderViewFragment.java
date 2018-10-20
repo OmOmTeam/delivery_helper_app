@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
@@ -60,12 +61,19 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     TableLayout orderDetails;
     Button cancelButton;
-    Button actionButton;
     Button pickButton;
     ImageView imageHolder;
     ProgressBar progressBar;
+    View assignedPanel;
     private boolean variator;
+
     private int actionState;
+    Button actionButton;
+
+    private int  assignedPanelState;
+    private Button assignedPanelButton;
+    private Button assignedPanelInfo;
+
     SupportMapFragment mapFragment;
     GoogleMap map;
     ArrayList<Marker> markers;
@@ -84,10 +92,13 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
         controller = new OrderViewController(this);
         variator = true;
+        assignedPanel = view.findViewById(R.id.order_assigned_panel);
         orderDetails = view.findViewById(R.id.order_view_details);
         cancelButton = view.findViewById(R.id.order_view_cancel);
         actionButton = view.findViewById(R.id.order_view_action);
         pickButton = view.findViewById(R.id.order_confirmation);
+        assignedPanelButton = view.findViewById(R.id.order_confirmation);
+        assignedPanelInfo = view.findViewById(R.id.order_message);
 //        imageHolder = view.findViewById(R.id.image_holder);
         progressBar = view.findViewById(R.id.details_progress);
         actionState = 2;
@@ -224,6 +235,20 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
             actionButton.setText("unavailable");
             actionButton.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             actionButton.setEnabled(false);
+        }
+    }
+    public void setAssignedPanelState(int state) {
+        this.assignedPanelState = state;
+        if(state==0){
+            assignedPanelButton.setText("available");
+            assignedPanelButton.setEnabled(false);
+            assignedPanelInfo.setText(Html.fromHtml("Press <b>ACCEPT</b> to assign order"));
+        }else if(state==1) {
+            assignedPanelButton.setText("pick");
+            assignedPanelInfo.setText(Html.fromHtml("Visit warehouse to pick item"));
+        }else if(state==2){
+            assignedPanelButton.setText("deliver");
+            assignedPanelInfo.setText(Html.fromHtml("Press to send approval code to customer"));
         }
     }
 
