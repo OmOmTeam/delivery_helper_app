@@ -23,15 +23,22 @@ public interface ApiInterface {
     @POST("assigned_orders")
     Call<List<ItemHeaderResponseModel>> getAssignedOrderList(@Header("Token") String token, @Body RequestBody parameters);
 
-    @POST("order/order_details")
+    @POST("order/details")
     Call<ItemResponseModel> getOrderDetails(@Header("Token") String token, @Body RequestBody parameters);
 
-    @POST("order/accept_order")
+    @POST("order/accept")
     Call<AcceptanceModel> requestAssignOrder(@Header("Token") String token, @Body RequestBody parameters);
 
-//    @POST("order/deliver_order")
-//    Call<AcceptanceModel> requestDeliverOrder(@Header("Token") String token, @Body RequestBody parameters);
+    @POST("order/pick")
+    Call<AcceptanceModel> requestPickOrder(@Header("Token") String token, @Body RequestBody parameters);
 
-    @POST("order/dismiss_order")
+    @POST("order/deliver")
+    Call<AcceptanceModel> requestDeliverOrder(@Header("Token") String token, @Body RequestBody parameters);
+
+    @POST("order/cancel")
     Call<AcceptanceModel> requestDismissOrder(@Header("Token") String token, @Body RequestBody parameters);
+
+    @POST("location/update")
+    Call<AcceptanceModel> requestUpdateLocation(@Header("Token") String token, @Body RequestBody parameters);
+
 }

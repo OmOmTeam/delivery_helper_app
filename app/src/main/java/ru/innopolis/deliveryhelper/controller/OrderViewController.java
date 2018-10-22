@@ -1,8 +1,28 @@
 package ru.innopolis.deliveryhelper.controller;
 
+import android.graphics.Color;
+import android.util.Pair;
 import android.util.Log;
 
+import com.directions.route.Route;
+import com.directions.route.RouteException;
+import com.directions.route.RoutingListener;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
+
+import java.util.ArrayList;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -10,6 +30,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import ru.innopolis.deliveryhelper.OrderViewMVC;
+import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.model.ApiInterface;
 import ru.innopolis.deliveryhelper.model.dataframes.request.ItemRequestModel;
 import ru.innopolis.deliveryhelper.model.dataframes.response.AcceptanceModel;
@@ -25,10 +46,14 @@ public class OrderViewController implements OrderViewMVC.Controller {
     private ApiInterface api;
     private Gson gson;
 
+
+
     public OrderViewController(OrderViewMVC.View view) {
         this.view = view;
         gson = new Gson();
         api = RetrofitService.getInstance().create(ApiInterface.class);
+
+
     }
 
     public void requestAssignOrder(final String orderId){
@@ -66,8 +91,9 @@ public class OrderViewController implements OrderViewMVC.Controller {
 
     public void loadDetailList(String orderId) {
         try {
-            ItemRequestModel gtrm = new ItemRequestModel(orderId,SafeStorage.getUsername());
-//            view.showNotification("Sent request with: "+orderId+" "+SafeStorage.getUsername());
+            String username = SafeStorage.getUsername();
+            ItemRequestModel gtrm = new ItemRequestModel(orderId, username);
+            Log.d(TAG, String.format("loadDetailList: orderId - %s, username - %s", orderId, username));
             Call<ItemResponseModel> call = api.getOrderDetails(SafeStorage.getToken(), RequestBody.create(MediaType.parse("application/json"), gson.toJson(gtrm)));
             call.enqueue(new Callback<ItemResponseModel>() {
                 @Override
@@ -77,17 +103,11 @@ public class OrderViewController implements OrderViewMVC.Controller {
                         ItemResponseModel irm = response.body();
                         if(irm.getError()==null||irm.getError().equals("null")){
 
-                            view.addDetailEntity("Order ID", irm.getItemId());
-                            view.addDetailEntity("Location", irm.getDestination());
-                            view.addDetailEntity("Address", irm.getDestinationAddress());
-                            view.addDetailEntity("Dimensions", irm.getDimensions());
-                            view.addDetailEntity("Weight", irm.getWeight());
-                            view.addDetailEntity("Status", irm.getDeliveryState());
-                            view.addDetailEntity("Customer", irm.getCustomerName());
-                            view.addDetailEntity("Customer Phone", irm.getCustomerPhone());
-                            view.addDetailEntity("Assigned To",irm.getAssignedTo());
-                            view.addDetailEntity("Delivery Time From",irm.getDeliveryTimeFrom());
-                            view.addDetailEntity("Delivery Time To",irm.getDeliveryTimeTo());
+                            view.loadMap(irm.getWarehouseLocation(), irm.getRecipientLocation());
+
+                            for(Pair<String, String> pair : irm.getAvailableParameters()) {
+                                view.addDetailEntity(pair.first, pair.second);
+                            }
                             view.hideProgressBar();
                             view.setActionState(1);
                             view.setAssignedPanelState(1);
@@ -109,5 +129,30 @@ public class OrderViewController implements OrderViewMVC.Controller {
         } catch (Exception e) {
             view.showNotification(e.getMessage());
         }
+    }
+
+    @Override
+    public void acceptOrder(String orderId) {
+        //TODO
+    }
+
+    @Override
+    public void pickOrder(String orderId, String key) {
+        //TODO
+    }
+
+    @Override
+    public void validateRecipient(String orderId) {
+        //TODO
+    }
+
+    @Override
+    public void deliverOrder(String orderId, String key) {
+        //TODO
+    }
+
+    @Override
+    public void cancelOrder(String orderId, String key) {
+        //TODO
     }
 }

@@ -18,16 +18,17 @@ import java.util.List;
 
 import ru.innopolis.deliveryhelper.OrderEntryAdapterCallback;
 import ru.innopolis.deliveryhelper.R;
+import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseModel;
 
-public class AssignedOrderEntryAdapter extends ArrayAdapter<OrderEntry> {
+public class AssignedOrderEntryAdapter extends ArrayAdapter<ItemHeaderResponseModel> {
     private Context oContext;
-    private List<OrderEntry> orderList = new ArrayList<>();
+    private List<ItemHeaderResponseModel> orderList = new ArrayList<>();
 
     OrderEntryAdapterCallback callback;
     /**
      * Adapter for the applet list
      */
-    public AssignedOrderEntryAdapter(@NonNull Context context, @SuppressLint("SupportAnnotationUsage") @LayoutRes ArrayList<OrderEntry> list) {
+    public AssignedOrderEntryAdapter(@NonNull Context context, @SuppressLint("SupportAnnotationUsage") @LayoutRes List<ItemHeaderResponseModel> list) {
         super(context, 0, list);
         oContext = context;
         orderList = list;
@@ -40,15 +41,15 @@ public class AssignedOrderEntryAdapter extends ArrayAdapter<OrderEntry> {
         if (listItem == null)
             listItem = LayoutInflater.from(oContext).inflate(R.layout.assigned_order_entry_listitem, parent, false);
 
-        final OrderEntry currentEntry = orderList.get(position);
+        final ItemHeaderResponseModel currentEntry = orderList.get(position);
         ImageView image = listItem.findViewById(R.id.order_entry_icon);
         TextView title = listItem.findViewById(R.id.order_entry_title);
-        TextView address = listItem.findViewById(R.id.order_entry_address);
-        TextView weight = listItem.findViewById(R.id.order_entry_weight);
+        TextView dimensions = listItem.findViewById(R.id.order_entry_sub_1);
+        TextView weight = listItem.findViewById(R.id.order_entry_sub_2);
 
-        image.setImageResource(currentEntry.getIcon());
+        image.setImageResource(R.drawable.ic_letter);
         title.setText(currentEntry.getTitle());
-        address.setText(currentEntry.getAddress());
+        dimensions.setText(currentEntry.getDimensions());
         weight.setText(currentEntry.getWeight());
 
         return listItem;
@@ -57,5 +58,8 @@ public class AssignedOrderEntryAdapter extends ArrayAdapter<OrderEntry> {
     public void setCallback(OrderEntryAdapterCallback callback){
         this.callback = callback;
     }
-
+    public List<ItemHeaderResponseModel> getOrderList()
+    {
+        return orderList;
+    }
 }

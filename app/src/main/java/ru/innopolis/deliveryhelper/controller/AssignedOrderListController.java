@@ -16,6 +16,7 @@ import ru.innopolis.deliveryhelper.model.ApiInterface;
 import ru.innopolis.deliveryhelper.model.RetrofitService;
 import ru.innopolis.deliveryhelper.model.SafeStorage;
 import ru.innopolis.deliveryhelper.model.dataframes.request.ItemRequestModel;
+import ru.innopolis.deliveryhelper.model.dataframes.request.LoginOnlyModel;
 import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseModel;
 
 public class AssignedOrderListController implements OrderListMVC.Controller {
@@ -36,17 +37,13 @@ public class AssignedOrderListController implements OrderListMVC.Controller {
         try {
             view.showProgressBar();
             view.clearList();
-            ItemRequestModel irm = new ItemRequestModel("", SafeStorage.getUsername());
-            Call<List<ItemHeaderResponseModel>> call = api.getAssignedOrderList(SafeStorage.getToken(),RequestBody.create(MediaType.parse("application/json"), gson.toJson(irm)));
+            LoginOnlyModel lom = new LoginOnlyModel(SafeStorage.getUsername());
+            Call<List<ItemHeaderResponseModel>> call = api.getAssignedOrderList(SafeStorage.getToken(),RequestBody.create(MediaType.parse("application/json"), gson.toJson(lom)));
             call.enqueue(new Callback<List<ItemHeaderResponseModel>>() {
                 @Override
                 public void onResponse(Call<List<ItemHeaderResponseModel>> call, Response<List<ItemHeaderResponseModel>> response) {
                     if (response.body() != null) {
-                        List<ItemHeaderResponseModel> ihrm = response.body();
-                        for(ItemHeaderResponseModel m: ihrm) {
-                            view.addEntity(m.getItemId(),m.getTitle(), m.getAddress(), m.getWeight(), m.getDimensions(), m.getDistanceFromWarehouse(), m.getItemType());
-                        }
-                        view.updateList();
+                        view.updateList(response.body());
                         view.hideProgressBar();
                     } else {
                         view.showNotification("Server error");

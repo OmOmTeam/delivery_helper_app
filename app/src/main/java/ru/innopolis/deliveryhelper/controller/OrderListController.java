@@ -18,7 +18,7 @@ import ru.innopolis.deliveryhelper.model.SafeStorage;
 public class OrderListController implements OrderListMVC.Controller {
 
 
-    private final String TAG = "LoginController";
+    private final String TAG = "OrderListController";
     private OrderListMVC.View view;
     private ApiInterface api;
     private Gson gson;
@@ -38,11 +38,7 @@ public class OrderListController implements OrderListMVC.Controller {
                 @Override
                 public void onResponse(Call<List<ItemHeaderResponseModel>> call, Response<List<ItemHeaderResponseModel>> response) {
                     if (response.body() != null) {
-                        List<ItemHeaderResponseModel> ihrm = response.body();
-                        for(ItemHeaderResponseModel m: ihrm) {
-                            view.addEntity(m.getItemId(),m.getTitle(), m.getAddress(), m.getWeight(), m.getDimensions(), m.getDistanceFromWarehouse(), m.getItemType());
-                        }
-                        view.updateList();
+                        view.updateList(response.body());
                         view.hideProgressBar();
                     } else {
                         view.showNotification("Server error");
@@ -57,7 +53,7 @@ public class OrderListController implements OrderListMVC.Controller {
                 }
             });
         } catch (Exception e) {
-            view.showNotification(e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
     }
 }

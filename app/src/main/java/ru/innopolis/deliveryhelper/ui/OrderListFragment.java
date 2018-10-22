@@ -1,5 +1,6 @@
 package ru.innopolis.deliveryhelper.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -10,7 +11,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,11 +23,11 @@ import ru.innopolis.deliveryhelper.OrderEntryAdapterCallback;
 import ru.innopolis.deliveryhelper.OrderListMVC;
 import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.controller.OrderListController;
+import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseModel;
 
 
 public class OrderListFragment extends Fragment implements OrderListMVC.View, OrderEntryAdapterCallback {
 
-    private ArrayList<OrderEntry> orderList;
     private OrderEntryAdapter oAdapter;
     private ListView listView;
     private OrderListMVC.Controller controller;
@@ -34,16 +38,20 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_orderlist, container, false);
 
-        orderList = new ArrayList<>();
+        getActivity().setTitle("Available Orders");
         listView = view.findViewById(R.id.all_orders_listview);
         controller = new OrderListController(this);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, android.view.View view, int i, long l) {
-                ((ContainerActivity) getActivity()).openOrderView(orderList.get(i).getOrderId());
-            }
-        });
+        try {
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, android.view.View view, int i, long l) {
+                    ((ContainerActivity) getActivity()).openOrderView(oAdapter.getOrderList().get(i).getOrderId());
+                }
+            });
+        } catch (NullPointerException e) {
+            Log.e("NULL CAUGHT", e.getMessage());
+        }
 
         return view;
     }
@@ -54,44 +62,56 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
         controller.loadOrderList();
     }
 
-    public void updateList() {
-        oAdapter = new OrderEntryAdapter(getContext(), orderList);
-        oAdapter.setCallback(this);
-        listView.setAdapter(oAdapter);
-        //setEmptyMessageNotificationVisibility(aAdapter.isEmpty());
+    public void updateList(List<ItemHeaderResponseModel> orderList) {
+        try {
+            oAdapter = new OrderEntryAdapter(getContext(), orderList);
+            oAdapter.setCallback(this);
+            listView.setAdapter(oAdapter);
+        } catch (NullPointerException e) {
+            Log.e("NULL CAUGHT", e.getMessage());
+        }
     }
 
     @Override
     public void hideProgressBar() {
-        progressBar = getView().findViewById(R.id.order_list_progress);
-        if (progressBar != null) {
-            progressBar.setVisibility(View.GONE);
+        try {
+            progressBar = getView().findViewById(R.id.order_list_progress);
+            if (progressBar != null) {
+                progressBar.setVisibility(View.GONE);
+            }
+        } catch (NullPointerException e) {
+            Log.e("NULL CAUGHT", e.getMessage());
         }
     }
 
     @Override
     public void showProgressBar() {
-        progressBar = getView().findViewById(R.id.order_list_progress);
-        if (progressBar != null) {
-            progressBar.setVisibility(View.VISIBLE);
+        try {
+            progressBar = getView().findViewById(R.id.order_list_progress);
+            if (progressBar != null) {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+        } catch (NullPointerException e) {
+            Log.e("NULL CAUGHT", e.getMessage());
         }
-    }
-
-    public void addEntity(String orderId, String title, String address, String weight, String dimensions, String distanceFromWarehouse, String type) {
-        orderList.add(new OrderEntry(orderId, title, address, weight, dimensions, distanceFromWarehouse, R.drawable.ic_letter));
     }
 
     /**
      * Delete all items from current list in activity
      */
     public void clearList() {
-        orderList.clear();
-        updateList();
+        if (oAdapter!=null && oAdapter.getOrderList()!=null){
+            oAdapter.getOrderList().clear();
+        }
     }
 
     @Override
     public void showNotification(String message) {
-        ((ContainerActivity) getActivity()).showNotification(message);
+        try {
+            ((ContainerActivity) getActivity()).showNotification(message);
+        } catch (NullPointerException e) {
+            Log.e("NULL CAUGHT", e.getMessage());
+        }
     }
 
     @Override

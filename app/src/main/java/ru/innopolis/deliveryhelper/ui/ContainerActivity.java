@@ -92,7 +92,7 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
 
     }
 
-    private void setFragment(Class fragmentClass, String title) {
+    private void setFragment(Class fragmentClass) {
         Fragment fragment = null;
         try {
             fragment = (Fragment) fragmentClass.newInstance();
@@ -100,10 +100,9 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
             e.printStackTrace();
         }
         fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit();
-        setTitle(title);
     }
 
-    private void setFragmentWithExtra(Class fragmentClass, String title, String extraKey, String extraValue) {
+    private void setFragmentWithExtra(Class fragmentClass, String extraKey, String extraValue) {
         Fragment fragment = null;
         try {
             fragment = (Fragment) fragmentClass.newInstance();
@@ -114,34 +113,32 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
         Bundle bundle = new Bundle();
         bundle.putString(extraKey, extraValue);
         fragment.setArguments(bundle);
-//        Fragment fragment = getSupportFragmentManager().findFragmentByTag(R);
         fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit();
-        setTitle(title);
     }
 
     @Override
     public void openOrderList() {
-        setFragment(OrderListFragment.class, "Order List");
+        setFragment(OrderListFragment.class);
     }
 
     @Override
     public void openOrderView(String orderId) {
-        setFragmentWithExtra(OrderViewFragment.class, "Order View", "ORDER_ID_KEY", orderId);
+        setFragmentWithExtra(OrderViewFragment.class, "ORDER_ID_KEY", orderId);
     }
 
     @Override
     public void openAssignedOrderList() {
-        setFragment(AssignedOrderListFragment.class, "Confirmed Orders");
+        setFragment(AssignedOrderListFragment.class);
     }
 
     @Override
     public void openCurrentOrder() {
-        setFragment(NotImplementedActivityFragment.class, "Delivery");
+        setFragment(NotImplementedActivityFragment.class);
     }
 
     @Override
     public void openSettings() {
-        setFragment(NotImplementedActivityFragment.class, "Settings");
+        setFragment(NotImplementedActivityFragment.class);
     }
 
     public void returnToLoginActivity(){

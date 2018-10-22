@@ -6,31 +6,28 @@ import com.google.gson.annotations.SerializedName;
 
 public class ItemHeaderResponseModel {
     @SerializedName("order_id")
-    private String itemId;
+    private String orderId;
     @SerializedName("title")
     private String title;
-    @SerializedName("address")
-    private String address;
     @SerializedName("weight")
     private String weight;
     @SerializedName("dimensions")
     private String dimensions;
-    @SerializedName("distance_from_warehouse")
-    private String distanceFromWarehouse;
+    @SerializedName("warehouse_id")
+    private String warehouseId;
+    @SerializedName("warehouse_location")
+    private String warehouseLocation;
+    @SerializedName("recipient_location")
+    private String recipientLocation;
     @SerializedName("order_type")
-    private String itemType;
+    private String orderType;
 
-
-    public String getItemId() {
-        return itemId;
+    public String getOrderId() {
+        return orderId;
     }
 
     public String getTitle() {
         return title;
-    }
-
-    public String getAddress() {
-        return address;
     }
 
     public String getWeight() {
@@ -41,12 +38,19 @@ public class ItemHeaderResponseModel {
         return dimensions;
     }
 
-    public String getDistanceFromWarehouse() {
-        return distanceFromWarehouse;
+    public String getWarehouseId() {
+        return warehouseId;
     }
 
-    public String getItemType() {
-        return itemType;
+    public String getWarehouseLocation() {
+        return warehouseLocation;
     }
 
+    public String getRecipientLocation() {
+        return recipientLocation;
+    }
+
+    public String getOrderType() {
+        return orderType;
+    }
 }

@@ -45,7 +45,7 @@
                 android:orientation="horizontal"
                 android:gravity="center">
                 <TextView
-                    android:id="@+id/order_entry_address"
+                    android:id="@+id/order_entry_sub_1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
@@ -54,7 +54,7 @@
                     android:text="Hello Moto"
                     android:layout_gravity="center"/>
                 <TextView
-                    android:id="@+id/order_entry_weight"
+                    android:id="@+id/order_entry_sub_2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"

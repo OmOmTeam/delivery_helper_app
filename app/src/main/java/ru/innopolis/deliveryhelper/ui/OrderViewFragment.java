@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -50,13 +51,16 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import butterknife.BindView;
+import jp.wasabeef.blurry.Blurry;
 import ru.innopolis.deliveryhelper.ContainerMVC;
 import ru.innopolis.deliveryhelper.OrderViewMVC;
 import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.controller.OrderViewController;
+import ru.innopolis.deliveryhelper.gmsInterface;
 
-public class OrderViewFragment extends Fragment implements OrderViewMVC.View, RoutingListener {
+public class OrderViewFragment extends Fragment implements OrderViewMVC.View, RoutingListener, OnMapReadyCallback {
 
+    private static final String TAG = "OrderViewFragment";
     private OrderViewMVC.Controller controller;
 
     TableLayout orderDetails;
@@ -70,25 +74,20 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
     private int actionState;
     Button actionButton;
 
-    private int  assignedPanelState;
+    private int assignedPanelState;
     private Button assignedPanelButton;
     private Button assignedPanelInfo;
 
-    SupportMapFragment mapFragment;
     GoogleMap map;
     ArrayList<Marker> markers;
-    LatLng start, waypoint, end;
+    LatLng start, end;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view;
-//        try {
-            view = inflater.inflate(R.layout.fragment_orderview, container, false);
-//        } catch (InflateException e) {
-//            /* map is already there, just return view as it is */
-//        }
+        getActivity().setTitle("Order View");
+        View view = inflater.inflate(R.layout.fragment_orderview, container, false);
 
         controller = new OrderViewController(this);
         variator = true;
@@ -99,21 +98,8 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         pickButton = view.findViewById(R.id.order_confirmation);
         assignedPanelButton = view.findViewById(R.id.order_confirmation);
         assignedPanelInfo = view.findViewById(R.id.order_message);
-//        imageHolder = view.findViewById(R.id.image_holder);
         progressBar = view.findViewById(R.id.details_progress);
         actionState = 2;
-        mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_window);
-
-        start = new LatLng(55.753320, 48.741012);
-        end = new LatLng(55.817458, 49.130425);
-        mapFragment.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-//                showNotification("Map is ready");
-                map = googleMap;
-                drawRoute(start, end);
-            }
-        });
 
         pickButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,26 +113,24 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         if (bundle != null) {
             order = bundle.getString("ORDER_ID_KEY", "0");
             Log.d("ORDER_DET", order);
-        }else{
-            showNotification("Bundle IS NULL");
+        } else {
+            Log.e(TAG, "Bundle is null");
         }
-
-//        Picasso.with(getContext()).load("https://images.mentalfloss.com/sites/default/files/styles/mf_image_16x9/public/traffic_primary.jpg?itok=6hVRNcu_&resize=1100x1100").into(imageHolder);
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                ((ContainerActivity)getActivity()).openOrderList();
+                ((ContainerActivity) getActivity()).openOrderList();
             }
         });
 
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(actionState==0){
+                if (actionState == 0) {
                     showNotification("Assigning delivery");
-                }else if(actionState==1){
+                } else if (actionState == 1) {
                     showNotification("Declining delivery");
                 }
 
@@ -157,8 +141,37 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         return view;
     }
 
-    public void drawRoute(LatLng start, LatLng end) {
+    public void loadMap(String start, String end) {
+        if (start==null || end == null){
+            //show error panel
+            return;
+        }
+        this.start = locationFromString(start);
+        this.end = locationFromString(end);
+        SupportMapFragment mf = SupportMapFragment.newInstance();
+        getChildFragmentManager().beginTransaction()
+                .add(R.id.map_window, mf)
+                .commit();
+        mf.getMapAsync(this);
+    }
 
+    public LatLng locationFromString(String s){
+        if (s==null){
+            return null;
+        }
+        String sa[] = s.split(";");
+        return new LatLng(Double.parseDouble(sa[0]),Double.parseDouble(sa[1]));
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        showNotification("Here");
+        this.map = googleMap;
+        drawRoute(start, end);
+    }
+
+    private void drawRoute(LatLng start, LatLng end) {
+        showNotification("Routing Started");
         Routing routing = new Routing.Builder()
                 .travelMode(Routing.TravelMode.DRIVING)
                 .withListener(this)
@@ -168,27 +181,18 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         routing.execute();
     }
 
-//    @Override
-//    public void onDestroyView() {
-//        super.onDestroyView();
-//        SupportMapFragment f = (SupportMapFragment) getFragmentManager()
-//                .findFragmentById(R.id.map_window);
-//        if (f != null)
-//            getFragmentManager().beginTransaction().remove(f).commit();
-//    }
-
     public void addDetailEntity(String key, String value) {
         TableRow row = new TableRow(getContext());
         Resources resource = getContext().getResources();
-        if(resource!=null){
+        if (resource != null) {
 
-            if(variator) {
+            if (variator) {
                 row.setBackgroundColor(resource.getColor(R.color.colorShaded));
             }
         }
         variator = !variator;
 
-        row.setLayoutParams(new TableLayout.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,TableRow.LayoutParams.MATCH_PARENT,0f));
+        row.setLayoutParams(new TableLayout.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 0f));
 
         TextView keyView = new TextView(getContext());
         TextView valueView = new TextView(getContext());
@@ -196,11 +200,12 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         keyView.setText(key);
         valueView.setText(value);
 
-        final int pad = 7;
-        keyView.setPadding(pad,pad,pad,pad);
-        valueView.setPadding(pad,pad,pad,pad);
-
         //TODO: extract int resources
+
+        final int pad = 7;
+        keyView.setPadding(pad, pad, pad, pad);
+        valueView.setPadding(pad, pad, pad, pad);
+
         keyView.setTextSize(17);
         valueView.setTextSize(17);
 
@@ -208,7 +213,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         valueView.setTypeface(null, Typeface.ITALIC);
 
         keyView.setLayoutParams(new TableRow.LayoutParams(0, TableRow.LayoutParams.MATCH_PARENT, 1f));
-        valueView.setLayoutParams(new TableRow.LayoutParams(0,TableRow.LayoutParams.MATCH_PARENT, 3f));
+        valueView.setLayoutParams(new TableRow.LayoutParams(0, TableRow.LayoutParams.MATCH_PARENT, 3f));
 
         row.addView(keyView);
         row.addView(valueView);
@@ -223,30 +228,31 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
     @Override
     public void setActionState(int state) {
         this.actionState = state;
-        if(state==0){
+        if (state == 0) {
             actionButton.setText("accept");
             actionButton.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             actionButton.setEnabled(true);
-        }else if(state==1){
+        } else if (state == 1) {
             actionButton.setText("decline");
             actionButton.setBackgroundColor(getResources().getColor(R.color.colorAccent));
             actionButton.setEnabled(true);
-        }else{
+        } else {
             actionButton.setText("unavailable");
             actionButton.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             actionButton.setEnabled(false);
         }
     }
+
     public void setAssignedPanelState(int state) {
         this.assignedPanelState = state;
-        if(state==0){
+        if (state == 0) {
             assignedPanelButton.setText("available");
             assignedPanelButton.setEnabled(false);
             assignedPanelInfo.setText(Html.fromHtml("Press <b>ACCEPT</b> to assign order"));
-        }else if(state==1) {
+        } else if (state == 1) {
             assignedPanelButton.setText("pick");
             assignedPanelInfo.setText(Html.fromHtml("Visit warehouse to pick item"));
-        }else if(state==2){
+        } else if (state == 2) {
             assignedPanelButton.setText("deliver");
             assignedPanelInfo.setText(Html.fromHtml("Press to send approval code to customer"));
         }
@@ -254,7 +260,28 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     @Override
     public void showNotification(String message) {
-        ((ContainerActivity)getActivity()).showNotification(message);
+        ((ContainerActivity) getActivity()).showNotification(message);
+    }
+
+    public void receiveOrder() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+        alert.setTitle("Confirm parcel is picked for delivery: ");
+        final EditText input = new EditText(getContext());
+        input.setGravity(Gravity.CENTER);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setRawInputType(Configuration.KEYBOARD_12KEY);
+        alert.setView(input);
+        alert.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //Put actions for OK button here
+            }
+        });
+        alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //Put actions for CANCEL button here, or leave in blank
+            }
+        });
+        alert.show();
     }
 
     @Override
@@ -270,29 +297,10 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
     @Override
     public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
 
-//        CameraUpdate center = CameraUpdateFactory.newLatLng(start);
-//        CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
-//
-//        map.moveCamera(center);
-//        map.animateCamera(zoom);
-
-
-
-
         ArrayList<Polyline> polylines;
-//        if(polylines.size()>0) {
-//            for (Polyline poly : polylines) {
-//                poly.remove();
-//            }
-//        }
-
         polylines = new ArrayList<>();
-        //add route(s) to the map.
-        for (int i = 0; i <route.size(); i++) {
 
-            //In case of more than 5 alternative routes
-//            int colorIndex = i % COLORS.length;
-
+        for (int i = 0; i < route.size(); i++) {
             PolylineOptions polyOptions = new PolylineOptions();
             polyOptions.color(getResources().getColor(R.color.colorBlue));
             polyOptions.width(10 + i * 3);
@@ -305,15 +313,14 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         MarkerOptions options = new MarkerOptions();
         options.position(start);
         options.title("Destination");
-        Marker a = map.addMarker(options);
-//        markers.add(a);
+        map.addMarker(options);
+
         // End marker
         options = new MarkerOptions();
         options.position(end);
         options.title("Warehouse");
         options.icon(getMarkerIcon("#840f82"));
-        Marker b = map.addMarker(options);
-//        markers.add(b);
+        map.addMarker(options);
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (Route r : route) {
@@ -341,24 +348,5 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     }
 
-    public void receiveOrder() {
-        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-        alert.setTitle("Confirm parcel is picked for delivery: ");
-        final EditText input = new EditText(getContext());
-        input.setGravity(Gravity.CENTER);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        input.setRawInputType(Configuration.KEYBOARD_12KEY);
-        alert.setView(input);
-        alert.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                //Put actions for OK button here
-            }
-        });
-        alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                //Put actions for CANCEL button here, or leave in blank
-            }
-        });
-        alert.show();
-    }
+
 }
