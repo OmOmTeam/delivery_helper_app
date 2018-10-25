@@ -110,8 +110,7 @@ public class OrderViewController implements OrderViewMVC.Controller {
                                 view.addDetailEntity(pair.first, pair.second);
                             }
                             view.showProgressBar(false);
-                            view.setActionState(0);
-                            view.setAssignedPanelState(0);
+                            view.setActionState(2);
                         }else{
                             view.showNotification(irm.getError());
                         }

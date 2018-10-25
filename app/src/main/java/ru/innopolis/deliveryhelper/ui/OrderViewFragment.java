@@ -251,18 +251,16 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
                 }
             });
         } else if (state == 2) {
-            actionButton.setText("call");
+            actionButton.setText("contact");
             actionButton.setVisibility(View.VISIBLE);
             actionButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.colorAccent));
             actionButton.setEnabled(true);
             actionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    showCallSelector("Johnny Smith","+7-961-044-8618");
                 }
             });
-        } else if (state == 3) {
-            actionButton.setText("");
         }
     }
 
@@ -271,6 +269,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
             assignedPanelButton.setText("available");
             assignedPanelButton.setEnabled(false);
             assignedPanelInfo.setText(Html.fromHtml("Press <b>ACCEPT</b> to assign order"));
+            assignedPanelInfo.setEnabled(false);
         } else if (state == 1) {
             assignedPanelButton.setText("pick");
             assignedPanelButton.setEnabled(true);
@@ -281,7 +280,8 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
                 }
             });
             assignedPanelInfo.setText(Html.fromHtml("Click to locate warehouse"));
-            assignedPanelButton.setOnClickListener(new View.OnClickListener() {
+            assignedPanelInfo.setEnabled(true);
+            assignedPanelInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Uri navigationIntentUri = Uri.parse(String.format("google.navigation:q=%s,%s", start.latitude, start.longitude));//creating intent with latlng
@@ -293,7 +293,23 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         } else if (state == 2) {
             assignedPanelButton.setText("deliver");
             assignedPanelButton.setEnabled(true);
-            assignedPanelInfo.setText(Html.fromHtml("Press to send approval code to customer"));
+            assignedPanelButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deliverOrder();
+                }
+            });
+            assignedPanelInfo.setEnabled(true);
+            assignedPanelInfo.setText(Html.fromHtml("Press to locate customer"));
+            assignedPanelInfo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Uri navigationIntentUri = Uri.parse(String.format("google.navigation:q=%s,%s", end.latitude, end.longitude));//creating intent with latlng
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, navigationIntentUri);
+                    mapIntent.setPackage("com.google.android.apps.maps");
+                    startActivity(mapIntent);
+                }
+            });
         }
     }
 
@@ -318,6 +334,33 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 //Put actions for CANCEL button here, or leave in blank
+            }
+        });
+        alert.show();
+    }
+
+    public void deliverOrder() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+        alert.setTitle("Enter code that customer has received: ");
+        final EditText input = new EditText(getContext());
+        input.setGravity(Gravity.CENTER);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setRawInputType(Configuration.KEYBOARD_12KEY);
+        alert.setView(input);
+        alert.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                controller.deliverOrder(order_id, input.getText().toString());
+            }
+        });
+        alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //Put actions for CANCEL button here, or leave in blank
+            }
+        });
+        alert.setNeutralButton("RESEND CODE", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                showNotification("RESENDING CODE");
             }
         });
         alert.show();
@@ -395,4 +438,35 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         }
     }
 
+    public void showCallSelector(String recipientName, String recipientNumber) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+        alert.setTitle("Calling Menu");
+        View innerView = LayoutInflater.from(alert.getContext()).inflate(R.layout.caller_manu_snippet,null);
+        TextView recipientNameView = innerView.findViewById(R.id.recipient_name);
+        TextView recipientNumberView = innerView.findViewById(R.id.recipient_number);
+        Button recipientCallButton = innerView.findViewById(R.id.recipient_call_button);
+        Button recipientSMSButton = innerView.findViewById(R.id.recipient_sms_button);
+        Button supportCallButton = innerView.findViewById(R.id.support_call_button);
+        Button supportChatButton = innerView.findViewById(R.id.support_chat_button);
+
+        recipientNameView.setText(recipientName);
+        recipientNumberView.setText(recipientNumber);
+
+        recipientCallButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse(String.format("tel:%s",recipientNumber)));
+                startActivity(intent);
+            }
+        });
+        recipientSMSButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO : add sms intent
+            }
+        });
+        alert.setView(innerView);
+        alert.show();
+    }
 }

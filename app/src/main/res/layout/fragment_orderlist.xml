@@ -21,8 +21,8 @@
             android:visibility="gone">
             <ImageView
                 android:id="@+id/empty_icon"
-                android:layout_width="70sp"
-                android:layout_height="70sp"
+                android:layout_width="100sp"
+                android:layout_height="100sp"
                 android:layout_centerInParent="true"
                 android:src="@drawable/empty_icon"/>
             <TextView
@@ -30,7 +30,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="No orders are available"/>
+                android:text="No orders are available right now :("/>
         </RelativeLayout>
         <ListView
             android:id="@+id/all_orders_listview"

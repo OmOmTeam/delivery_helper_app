@@ -27,6 +27,7 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
     private ListView listView;
     private OrderListMVC.Controller controller;
     private ProgressBar progressBar;
+    private View emptyListInfo;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -36,6 +37,8 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
         getActivity().setTitle("Assigned Orders");
         controller = new AssignedOrderListController(this);
         listView = view.findViewById(R.id.all_orders_listview);
+        emptyListInfo = view.findViewById(R.id.empty_list_info);
+
         try {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -49,6 +52,14 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
         return view;
     }
 
+    public void showEmptyListInfo(boolean visibility){
+        if(visibility){
+            emptyListInfo.setVisibility(View.VISIBLE);
+        }else{
+            emptyListInfo.setVisibility(View.GONE);
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -57,8 +68,14 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
 
     public void updateList(List<ItemHeaderResponseModel> orderList) {
         try{
-            oAdapter = new AssignedOrderEntryAdapter(getContext(), orderList);
-            listView.setAdapter(oAdapter);
+            if (orderList.isEmpty()){
+                showEmptyListInfo(true);
+                listView.setAdapter(null);
+            }else{
+                showEmptyListInfo(false);
+                oAdapter = new AssignedOrderEntryAdapter(getContext(), orderList);
+                listView.setAdapter(oAdapter);
+            }
         }catch(NullPointerException e){
             Log.e("NULL CAUGHT", e.getMessage());
         }
