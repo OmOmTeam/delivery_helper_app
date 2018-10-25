@@ -91,6 +91,7 @@ public class OrderViewController implements OrderViewMVC.Controller {
 
     public void loadDetailList(String orderId) {
         try {
+            view.resetLoad();
             String username = SafeStorage.getUsername();
             ItemRequestModel gtrm = new ItemRequestModel(orderId, username);
             Log.d(TAG, String.format("loadDetailList: orderId - %s, username - %s", orderId, username));
@@ -108,9 +109,9 @@ public class OrderViewController implements OrderViewMVC.Controller {
                             for(Pair<String, String> pair : irm.getAvailableParameters()) {
                                 view.addDetailEntity(pair.first, pair.second);
                             }
-                            view.hideProgressBar();
-                            view.setActionState(1);
-                            view.setAssignedPanelState(1);
+                            view.showProgressBar(false);
+                            view.setActionState(0);
+                            view.setAssignedPanelState(0);
                         }else{
                             view.showNotification(irm.getError());
                         }
@@ -133,7 +134,36 @@ public class OrderViewController implements OrderViewMVC.Controller {
 
     @Override
     public void acceptOrder(String orderId) {
-        //TODO
+        try {
+            ItemRequestModel gtrm = new ItemRequestModel(orderId,SafeStorage.getUsername());
+            Call<AcceptanceModel> call = api.requestAssignOrder(SafeStorage.getToken(), RequestBody.create(MediaType.parse("application/json"), gson.toJson(gtrm)));
+            call.enqueue(new Callback<AcceptanceModel>() {
+                @Override
+                public void onResponse(Call<AcceptanceModel> call, Response<AcceptanceModel> response) {
+                    if (response.body() != null) {
+
+                        AcceptanceModel irm = response.body();
+                        if(irm.getError()==null||irm.getError().equals("null")){
+
+                            loadDetailList(orderId);
+                        }else{
+                            view.showNotification(irm.getError());
+                        }
+                    } else {
+                        view.showNotification("Server error");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AcceptanceModel> call, Throwable t) {
+                    Log.e(TAG, t.getMessage());
+                    view.showNotification("Server Connection Error");
+                    call.cancel();
+                }
+            });
+        } catch (Exception e) {
+            view.showNotification(e.getMessage());
+        }
     }
 
     @Override
@@ -152,7 +182,7 @@ public class OrderViewController implements OrderViewMVC.Controller {
     }
 
     @Override
-    public void cancelOrder(String orderId, String key) {
+    public void cancelOrder(String orderId) {
         //TODO
     }
 }

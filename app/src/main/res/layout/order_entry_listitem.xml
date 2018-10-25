@@ -73,7 +73,8 @@
             android:layout_alignParentEnd="true"
             android:layout_centerInParent="true"
             android:layout_margin="5dp"
-            android:text="Accept"
+            android:text="Available"
+            android:clickable="false"
             android:textColor="@color/white"
             android:backgroundTint="@color/colorGreen"/>
     </RelativeLayout>

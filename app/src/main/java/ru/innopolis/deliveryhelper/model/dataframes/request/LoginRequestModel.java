@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName;
 public class LoginRequestModel {
     @SerializedName("login")
     private String login;
-    @SerializedName("password")
+    @SerializedName("password_hash")
     private String pasword;
 
     public LoginRequestModel(String login, String password) {

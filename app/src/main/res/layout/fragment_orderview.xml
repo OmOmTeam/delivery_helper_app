@@ -6,16 +6,25 @@
     android:orientation="vertical">
 
     <RelativeLayout
-        android:id="@+id/map_window"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="4" >
-
-        <!--<fragment-->
-            <!--class="com.google.android.gms.maps.SupportMapFragment"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:clickable="true"/>-->
+        <RelativeLayout
+            android:id="@+id/map_window"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <RelativeLayout
+            android:id="@+id/maps_placeholder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white">
+            <ImageView
+                android:layout_width="100sp"
+                android:layout_height="100sp"
+                android:src="@drawable/map_logo"
+                android:layout_centerInParent="true"/>
+        </RelativeLayout>
+        </RelativeLayout>
     </RelativeLayout>
     <View
         android:layout_width="match_parent"
@@ -23,8 +32,7 @@
         android:background="@color/colorPrimary"/>
     <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.9"
+        android:layout_height="wrap_content"
         android:padding="5dp"
         android:orientation="horizontal">
     <TableRow
@@ -36,7 +44,7 @@
             android:padding="10dp"
             android:background="@drawable/button_stroke"
             android:layout_weight="5"
-            android:text="Visit warehouse to pick  ➡"/>
+            android:text="loading..."/>
         <Button
             android:id="@+id/order_confirmation"
             android:layout_width="wrap_content"
@@ -44,8 +52,8 @@
             android:padding="10dp"
             android:textColor="@color/white"
             android:layout_weight="1"
-            android:background="#1d62d1"
-            android:text="receive"/>
+            android:background="@color/mainBlue"
+            android:text="wait"/>
     </TableRow>
     </TableLayout>
     <RelativeLayout
@@ -84,9 +92,7 @@
 
     <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="5dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <TableRow>
@@ -95,23 +101,20 @@
                 android:id="@+id/order_view_cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
                 android:layout_weight="1"
-                android:background="@color/colorShaded"
-                android:text="Close"/>
-            <View
-                android:layout_width="10dp"
-                android:layout_height="match_parent"
-                android:background="@color/white" />
+                android:backgroundTint="@color/colorShaded"
+                android:text="Close"
+                android:enabled="true"/>
+
             <Button
                 android:id="@+id/order_view_action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
                 android:textColor="@color/white"
-                android:background="@color/colorGreen"
+                android:backgroundTint="@color/colorGreen"
                 android:layout_weight="1"
-                android:text="Accept"/>
+                android:enabled="false"
+                android:visibility="invisible"/>
         </TableRow>
 
     </TableLayout>

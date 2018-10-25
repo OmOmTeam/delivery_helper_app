@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -32,6 +33,7 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
     private ListView listView;
     private OrderListMVC.Controller controller;
     private ProgressBar progressBar;
+    private View emptyListInfo;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,6 +43,7 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
         getActivity().setTitle("Available Orders");
         listView = view.findViewById(R.id.all_orders_listview);
         controller = new OrderListController(this);
+        emptyListInfo = view.findViewById(R.id.empty_list_info);
 
         try {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -64,11 +67,25 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
 
     public void updateList(List<ItemHeaderResponseModel> orderList) {
         try {
-            oAdapter = new OrderEntryAdapter(getContext(), orderList);
-            oAdapter.setCallback(this);
-            listView.setAdapter(oAdapter);
+            if (orderList.isEmpty()){
+                showEmptyListInfo(true);
+                listView.setAdapter(null);
+            }else{
+                showEmptyListInfo(false);
+                oAdapter = new OrderEntryAdapter(getContext(), orderList);
+                oAdapter.setCallback(this);
+                listView.setAdapter(oAdapter);
+            }
         } catch (NullPointerException e) {
             Log.e("NULL CAUGHT", e.getMessage());
+        }
+    }
+
+    public void showEmptyListInfo(boolean visibility){
+        if(visibility){
+            emptyListInfo.setVisibility(View.VISIBLE);
+        }else{
+            emptyListInfo.setVisibility(View.GONE);
         }
     }
 

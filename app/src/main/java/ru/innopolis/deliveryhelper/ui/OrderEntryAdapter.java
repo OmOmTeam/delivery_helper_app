@@ -55,12 +55,6 @@ public class OrderEntryAdapter extends ArrayAdapter<ItemHeaderResponseModel> {
         dimensions.setText(currentEntry.getDimensions());
         weight.setText(currentEntry.getWeight());
 
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                callback.assignOrder(currentEntry.getOrderId());
-            }
-        });
 
         return listItem;
     }

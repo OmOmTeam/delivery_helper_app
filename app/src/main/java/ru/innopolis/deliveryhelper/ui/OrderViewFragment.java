@@ -2,13 +2,16 @@ package ru.innopolis.deliveryhelper.ui;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
@@ -20,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
@@ -65,8 +69,6 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     TableLayout orderDetails;
     Button cancelButton;
-    Button pickButton;
-    ImageView imageHolder;
     ProgressBar progressBar;
     View assignedPanel;
     private boolean variator;
@@ -74,10 +76,11 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
     private int actionState;
     Button actionButton;
 
-    private int assignedPanelState;
+    private String order_id;
     private Button assignedPanelButton;
     private Button assignedPanelInfo;
 
+    private View mapsPlaceholder;
     GoogleMap map;
     ArrayList<Marker> markers;
     LatLng start, end;
@@ -95,24 +98,16 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         orderDetails = view.findViewById(R.id.order_view_details);
         cancelButton = view.findViewById(R.id.order_view_cancel);
         actionButton = view.findViewById(R.id.order_view_action);
-        pickButton = view.findViewById(R.id.order_confirmation);
         assignedPanelButton = view.findViewById(R.id.order_confirmation);
         assignedPanelInfo = view.findViewById(R.id.order_message);
         progressBar = view.findViewById(R.id.details_progress);
-        actionState = 2;
-
-        pickButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                receiveOrder();
-            }
-        });
+        mapsPlaceholder = view.findViewById(R.id.maps_placeholder);
 
         Bundle bundle = this.getArguments();
-        String order = "0";
+        order_id = "0";
         if (bundle != null) {
-            order = bundle.getString("ORDER_ID_KEY", "0");
-            Log.d("ORDER_DET", order);
+            order_id = bundle.getString("ORDER_ID_KEY", "0");
+            Log.d("ORDER_DET", order_id);
         } else {
             Log.e(TAG, "Bundle is null");
         }
@@ -125,23 +120,17 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
             }
         });
 
-        actionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (actionState == 0) {
-                    showNotification("Assigning delivery");
-                } else if (actionState == 1) {
-                    showNotification("Declining delivery");
-                }
-
-            }
-        });
-        controller.loadDetailList(order);
-
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        controller.loadDetailList(order_id);
+    }
+
     public void loadMap(String start, String end) {
+        showMapsPlaceholder(true);
         if (start==null || end == null){
             //show error panel
             return;
@@ -155,6 +144,14 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         mf.getMapAsync(this);
     }
 
+    @Override
+    public void resetLoad() {
+        showMapsPlaceholder(true);
+        showProgressBar(true);
+        orderDetails.removeAllViews();
+
+    }
+
     public LatLng locationFromString(String s){
         if (s==null){
             return null;
@@ -165,13 +162,11 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        showNotification("Here");
         this.map = googleMap;
         drawRoute(start, end);
     }
 
     private void drawRoute(LatLng start, LatLng end) {
-        showNotification("Routing Started");
         Routing routing = new Routing.Builder()
                 .travelMode(Routing.TravelMode.DRIVING)
                 .withListener(this)
@@ -221,39 +216,83 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
     }
 
     @Override
-    public void hideProgressBar() {
-        progressBar.setVisibility(View.GONE);
+    public void showProgressBar(boolean visibility) {
+        if(visibility){
+            progressBar.setVisibility(View.VISIBLE);
+        }else{
+            progressBar.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void setActionState(int state) {
         this.actionState = state;
+        setAssignedPanelState(state);
         if (state == 0) {
             actionButton.setText("accept");
-            actionButton.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             actionButton.setEnabled(true);
+            actionButton.setVisibility(View.VISIBLE);
+            actionButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.colorGreen));
+            actionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    controller.acceptOrder(order_id);
+                }
+            });
         } else if (state == 1) {
             actionButton.setText("decline");
-            actionButton.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+            actionButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.colorPrimaryDark));
             actionButton.setEnabled(true);
-        } else {
-            actionButton.setText("unavailable");
-            actionButton.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            actionButton.setEnabled(false);
+            actionButton.setVisibility(View.VISIBLE);
+            actionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    controller.cancelOrder(order_id);
+                }
+            });
+        } else if (state == 2) {
+            actionButton.setText("call");
+            actionButton.setVisibility(View.VISIBLE);
+            actionButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.colorAccent));
+            actionButton.setEnabled(true);
+            actionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+        } else if (state == 3) {
+            actionButton.setText("");
         }
     }
 
     public void setAssignedPanelState(int state) {
-        this.assignedPanelState = state;
         if (state == 0) {
             assignedPanelButton.setText("available");
             assignedPanelButton.setEnabled(false);
             assignedPanelInfo.setText(Html.fromHtml("Press <b>ACCEPT</b> to assign order"));
         } else if (state == 1) {
             assignedPanelButton.setText("pick");
-            assignedPanelInfo.setText(Html.fromHtml("Visit warehouse to pick item"));
+            assignedPanelButton.setEnabled(true);
+            assignedPanelButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    receiveOrder();
+                }
+            });
+            assignedPanelInfo.setText(Html.fromHtml("Click to locate warehouse"));
+            assignedPanelButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Uri navigationIntentUri = Uri.parse(String.format("google.navigation:q=%s,%s", start.latitude, start.longitude));//creating intent with latlng
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, navigationIntentUri);
+                    mapIntent.setPackage("com.google.android.apps.maps");
+                    startActivity(mapIntent);
+                }
+            });
         } else if (state == 2) {
             assignedPanelButton.setText("deliver");
+            assignedPanelButton.setEnabled(true);
             assignedPanelInfo.setText(Html.fromHtml("Press to send approval code to customer"));
         }
     }
@@ -273,7 +312,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         alert.setView(input);
         alert.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //Put actions for OK button here
+                controller.pickOrder(order_id, input.getText().toString());
             }
         });
         alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -296,7 +335,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     @Override
     public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
-
+        showMapsPlaceholder(false);
         ArrayList<Polyline> polylines;
         polylines = new ArrayList<>();
 
@@ -348,5 +387,12 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     }
 
+    void showMapsPlaceholder(boolean visibility) {
+        if (visibility) {
+            mapsPlaceholder.setVisibility(View.VISIBLE);
+        }else{
+            mapsPlaceholder.setVisibility(View.GONE);
+        }
+    }
 
 }

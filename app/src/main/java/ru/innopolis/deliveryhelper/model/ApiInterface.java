@@ -32,6 +32,9 @@ public interface ApiInterface {
     @POST("order/pick")
     Call<AcceptanceModel> requestPickOrder(@Header("Token") String token, @Body RequestBody parameters);
 
+    @POST("order/validate_customer")
+    Call<AcceptanceModel> requestValidateCustomer(@Header("Token") String token, @Body RequestBody parameters);
+
     @POST("order/deliver")
     Call<AcceptanceModel> requestDeliverOrder(@Header("Token") String token, @Body RequestBody parameters);
 
