@@ -33,7 +33,7 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
     DrawerLayout mDrawerLayout;
     @BindView(R.id.nav_view)
     NavigationView navigationView;
-
+    Class previousFragment;
 
     private FragmentManager fragmentManager;
 
@@ -53,17 +53,8 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
             actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_white);
         }
 
-        Class initialFragementClass = OrderListFragment.class;
-        Fragment initialFragment = null;
-        try {
-            initialFragment = (Fragment) initialFragementClass.newInstance();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        }
-        setTitle("Available Orders");
-        fragmentManager.beginTransaction().replace(R.id.fragment_container, initialFragment).commit();
+        previousFragment = OrderListFragment.class;
+        setFragment(OrderListFragment.class);
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -89,11 +80,28 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
                 return true;
             }
         });
+    }
 
+    private void setPreviousFragment() {
+        try {
+            Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);
+            if(currentFragment instanceof OrderListFragment){
+                previousFragment = OrderListFragment.class;
+            }else if(currentFragment instanceof AssignedOrderListFragment){
+                previousFragment = AssignedOrderListFragment.class;
+            }else if(currentFragment instanceof OrderViewFragment){
+                previousFragment = OrderViewFragment.class;
+            }else if(currentFragment instanceof NotImplementedActivityFragment){
+                previousFragment = NotImplementedActivityFragment.class;
+            }
+        }catch(NullPointerException e){
+            previousFragment = OrderListFragment.class;
+        }
     }
 
     private void setFragment(Class fragmentClass) {
         Fragment fragment = null;
+        setPreviousFragment();
         try {
             fragment = (Fragment) fragmentClass.newInstance();
         } catch (Exception e) {
@@ -114,6 +122,10 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
         bundle.putString(extraKey, extraValue);
         fragment.setArguments(bundle);
         fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit();
+    }
+
+    public void returnToPreviousFragment(){
+        setFragment(previousFragment);
     }
 
     @Override

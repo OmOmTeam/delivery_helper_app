@@ -116,7 +116,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
             @Override
             public void onClick(View v) {
 
-                ((ContainerActivity) getActivity()).openOrderList();
+                ((ContainerActivity) getActivity()).returnToPreviousFragment();
             }
         });
 
