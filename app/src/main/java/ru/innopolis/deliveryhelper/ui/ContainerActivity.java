@@ -53,7 +53,7 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
             actionbar.setHomeAsUpIndicator(R.drawable.ic_menu_white);
         }
 
-        previousFragment = OrderListFragment.class;
+        setPreviousFragment(OrderListFragment.class);
         setFragment(OrderListFragment.class);
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -82,26 +82,12 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
         });
     }
 
-    private void setPreviousFragment() {
-        try {
-            Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);
-            if(currentFragment instanceof OrderListFragment){
-                previousFragment = OrderListFragment.class;
-            }else if(currentFragment instanceof AssignedOrderListFragment){
-                previousFragment = AssignedOrderListFragment.class;
-            }else if(currentFragment instanceof OrderViewFragment){
-                previousFragment = OrderViewFragment.class;
-            }else if(currentFragment instanceof NotImplementedActivityFragment){
-                previousFragment = NotImplementedActivityFragment.class;
-            }
-        }catch(NullPointerException e){
-            previousFragment = OrderListFragment.class;
-        }
+    private void setPreviousFragment(Class fragment) {
+        previousFragment = fragment;
     }
 
     private void setFragment(Class fragmentClass) {
         Fragment fragment = null;
-        setPreviousFragment();
         try {
             fragment = (Fragment) fragmentClass.newInstance();
         } catch (Exception e) {
@@ -130,6 +116,7 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
 
     @Override
     public void openOrderList() {
+        setPreviousFragment(AssignedOrderListFragment.class);
         setFragment(OrderListFragment.class);
     }
 
@@ -140,6 +127,7 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
 
     @Override
     public void openAssignedOrderList() {
+        setPreviousFragment(AssignedOrderListFragment.class);
         setFragment(AssignedOrderListFragment.class);
     }
 
