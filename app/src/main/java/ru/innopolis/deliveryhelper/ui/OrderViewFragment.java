@@ -378,45 +378,48 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     @Override
     public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
-        showMapsPlaceholder(false);
-        ArrayList<Polyline> polylines;
-        polylines = new ArrayList<>();
+        try {
+            showMapsPlaceholder(false);
+            ArrayList<Polyline> polylines;
+            polylines = new ArrayList<>();
 
-        for (int i = 0; i < route.size(); i++) {
-            PolylineOptions polyOptions = new PolylineOptions();
-            polyOptions.color(getResources().getColor(R.color.colorBlue));
-            polyOptions.width(10 + i * 3);
-            polyOptions.addAll(route.get(i).getPoints());
-            Polyline polyline = map.addPolyline(polyOptions);
-            polylines.add(polyline);
+            for (int i = 0; i < route.size(); i++) {
+                PolylineOptions polyOptions = new PolylineOptions();
+                polyOptions.color(getResources().getColor(R.color.colorBlue));
+                polyOptions.width(10 + i * 3);
+                polyOptions.addAll(route.get(i).getPoints());
+                Polyline polyline = map.addPolyline(polyOptions);
+                polylines.add(polyline);
+            }
+
+            // Start marker
+            MarkerOptions options = new MarkerOptions();
+            options.position(start);
+            options.title("Destination");
+            map.addMarker(options);
+
+            // End marker
+            options = new MarkerOptions();
+            options.position(end);
+            options.title("Warehouse");
+            options.icon(getMarkerIcon("#840f82"));
+            map.addMarker(options);
+
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (Route r : route) {
+                for (LatLng l : r.getPoints())
+                    builder.include(l);
+            }
+            LatLngBounds bounds = builder.build();
+
+            int padding = 100; // offset from edges of the map in pixels
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+
+            map.moveCamera(cu);
+            map.animateCamera(cu);
+        }catch (Exception e) {
+            // Ignore exeptions since they arise on async call returning to empty fragment
         }
-
-        // Start marker
-        MarkerOptions options = new MarkerOptions();
-        options.position(start);
-        options.title("Destination");
-        map.addMarker(options);
-
-        // End marker
-        options = new MarkerOptions();
-        options.position(end);
-        options.title("Warehouse");
-        options.icon(getMarkerIcon("#840f82"));
-        map.addMarker(options);
-
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (Route r : route) {
-            for (LatLng l : r.getPoints())
-                builder.include(l);
-        }
-        LatLngBounds bounds = builder.build();
-
-        int padding = 100; // offset from edges of the map in pixels
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-
-        map.moveCamera(cu);
-        map.animateCamera(cu);
-
     }
 
     public BitmapDescriptor getMarkerIcon(String color) {
@@ -440,7 +443,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     public void showCallSelector(String recipientName, String recipientNumber) {
         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-        alert.setTitle("Calling Menu");
+        alert.setTitle("Contact");
         View innerView = LayoutInflater.from(alert.getContext()).inflate(R.layout.caller_manu_snippet,null);
         TextView recipientNameView = innerView.findViewById(R.id.recipient_name);
         TextView recipientNumberView = innerView.findViewById(R.id.recipient_number);
