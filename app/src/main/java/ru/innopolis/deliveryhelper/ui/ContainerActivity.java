@@ -1,6 +1,11 @@
 package ru.innopolis.deliveryhelper.ui;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -12,8 +17,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.text.InputType;
+import android.text.Spanned;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 
 import butterknife.BindView;
@@ -160,10 +172,21 @@ public class ContainerActivity extends AppCompatActivity implements ContainerMVC
     }
 
     @Override
-    public void showNotification(String message) {
-        View parentLayout = findViewById(android.R.id.content);
-        Snackbar mySnackbar = Snackbar.make(parentLayout, message, Snackbar.LENGTH_LONG);
-        mySnackbar.show();
+    public void showNotification(String text) {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        final TextView message = new TextView(this);
+        message.setText(Html.fromHtml(text));
+        message.setPadding(50,50,50,0);
+        message.setTypeface(null, Typeface.NORMAL);
+        message.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
+        message.setTextColor(Color.BLACK);
+        alert.setView(message);
+        alert.setPositiveButton("DISMISS", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // nothing to do
+            }
+        });
+        alert.show();
     }
 
     public ContainerMVC.Controller getController() {

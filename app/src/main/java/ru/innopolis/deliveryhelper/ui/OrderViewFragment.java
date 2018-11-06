@@ -170,10 +170,15 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
     }
 
     private void drawRoute(LatLng start, LatLng end) {
+        LatLng f1 = new LatLng(55.893270, 49.019864);
+        LatLng f2 = new LatLng(55.872593, 49.022668);
+        LatLng f3 = new LatLng(55.885258, 49.023553);
+        LatLng f4 = new LatLng(55.898021, 49.030424);
+
         Routing routing = new Routing.Builder()
                 .travelMode(Routing.TravelMode.DRIVING)
                 .withListener(this)
-                .waypoints(start, end)
+                .waypoints(start, end) //f1,f3,f2,f4)
                 .key("AIzaSyCr5Uq134ZDPO-02wjPsUow2rwQrfKP99s")
                 .build();
         routing.execute();
@@ -272,7 +277,12 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
             assignedPanelButton.setText("available");
             assignedPanelButton.setEnabled(false);
             assignedPanelInfo.setText(Html.fromHtml("Press <b>ACCEPT</b> to assign order"));
-            assignedPanelInfo.setEnabled(false);
+            assignedPanelInfo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showNotification("Press <b>ACCEPT</b> button at the bottom of screen to request this order to be assigned to you.");
+                }
+            });
         } else if (state == 1) {
             assignedPanelButton.setText("pick");
             assignedPanelButton.setEnabled(true);

@@ -1,5 +1,6 @@
 package ru.innopolis.deliveryhelper.controller;
 
+import android.text.Html;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -53,17 +54,17 @@ public class LoginController implements LoginMVC.Controller {
                             }
                             view.goToOrderListActivity();
                         } else {
-                            view.showNotification(String.format("Error: %s", lrm.getErrorMessage()));
+                            view.showNotification(String.format("<b>%s</b>", lrm.getErrorMessage()));
                         }
                     } else {
-                        view.showNotification("Server error");
+                        view.showNotification("<b>Internal server error</b>, please contact app provider.");
                     }
                 }
 
                 @Override
                 public void onFailure(Call<LoginResponseModel> call, Throwable t) {
                     Log.e(TAG, t.getMessage());
-                    view.showNotification("Server Connection Error");
+                    view.showNotification("Can't connect to server, <b>are you online?</b>");
                     call.cancel();
                 }
             });

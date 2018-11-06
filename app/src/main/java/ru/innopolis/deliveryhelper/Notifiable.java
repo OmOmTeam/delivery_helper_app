@@ -1,5 +1,7 @@
 package ru.innopolis.deliveryhelper;
 
+import android.text.Spanned;
+
 public interface Notifiable {
     /**
      * informs user about something unpredicted behaviour
