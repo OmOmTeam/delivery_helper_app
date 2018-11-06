@@ -1,5 +1,6 @@
 package ru.innopolis.deliveryhelper.ui;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -49,13 +50,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.notbytes.barcode_reader.BarcodeReaderActivity;
 import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import butterknife.BindView;
-import jp.wasabeef.blurry.Blurry;
 import ru.innopolis.deliveryhelper.ContainerMVC;
 import ru.innopolis.deliveryhelper.OrderViewMVC;
 import ru.innopolis.deliveryhelper.R;
@@ -84,6 +86,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
     GoogleMap map;
     ArrayList<Marker> markers;
     LatLng start, end;
+    static final int BARCODE_READER_ACTIVITY_REQUEST = 1;  // The request code
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -336,7 +339,28 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
                 //Put actions for CANCEL button here, or leave in blank
             }
         });
+        alert.setNeutralButton("SCAN", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent launchIntent = BarcodeReaderActivity.getLaunchIntent(getContext(), true, false);
+                startActivityForResult(launchIntent, BARCODE_READER_ACTIVITY_REQUEST);
+            }
+        });
         alert.show();
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == BARCODE_READER_ACTIVITY_REQUEST && data != null) {
+            Barcode barcode = data.getParcelableExtra(BarcodeReaderActivity.KEY_CAPTURED_BARCODE);
+            showNotification(barcode.rawValue);
+        }
+
     }
 
     public void deliverOrder() {
