@@ -78,6 +78,8 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
     private int actionState;
     Button actionButton;
 
+    private String customer_name;
+    private String customer_phone;
     private String order_id;
     private Button assignedPanelButton;
     private Button assignedPanelInfo;
@@ -105,6 +107,8 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         assignedPanelInfo = view.findViewById(R.id.order_message);
         progressBar = view.findViewById(R.id.details_progress);
         mapsPlaceholder = view.findViewById(R.id.maps_placeholder);
+        customer_name = "John Smith";
+        customer_phone = "+79610448618";
 
         Bundle bundle = this.getArguments();
         order_id = "0";
@@ -266,7 +270,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
             actionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showCallSelector("Johnny Smith","+7-961-044-8618");
+                    showCallSelector(customer_name,customer_phone);
                 }
             });
         }
@@ -313,7 +317,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
                 }
             });
             assignedPanelInfo.setEnabled(true);
-            assignedPanelInfo.setText(Html.fromHtml("Press to locate customer"));
+            assignedPanelInfo.setText(Html.fromHtml("Press to locate destination"));
             assignedPanelInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -368,7 +372,13 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
         if (requestCode == BARCODE_READER_ACTIVITY_REQUEST && data != null) {
             Barcode barcode = data.getParcelableExtra(BarcodeReaderActivity.KEY_CAPTURED_BARCODE);
-            showNotification(barcode.rawValue);
+            if(barcode.rawValue.equals("71717171")){
+                showNotification(String.format("Order with <b>ID %s</b> is recognised<br>Code: <b>%s</b>", order_id, "71717171"));
+            }else{
+                showNotification(String.format("Order is not recognized<br>Code: <b>%s</b>", barcode.rawValue));
+            }
+
+
         }
 
     }
@@ -429,13 +439,13 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
             // Start marker
             MarkerOptions options = new MarkerOptions();
             options.position(start);
-            options.title("Destination");
+            options.title("Warehouse");
             map.addMarker(options);
 
             // End marker
             options = new MarkerOptions();
             options.position(end);
-            options.title("Warehouse");
+            options.title("Destination");
             options.icon(getMarkerIcon("#840f82"));
             map.addMarker(options);
 
@@ -484,7 +494,6 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         Button recipientCallButton = innerView.findViewById(R.id.recipient_call_button);
         Button recipientSMSButton = innerView.findViewById(R.id.recipient_sms_button);
         Button supportCallButton = innerView.findViewById(R.id.support_call_button);
-        Button supportChatButton = innerView.findViewById(R.id.support_chat_button);
 
         recipientNameView.setText(recipientName);
         recipientNumberView.setText(recipientNumber);

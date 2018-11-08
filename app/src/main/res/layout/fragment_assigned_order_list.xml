@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="5">
+        <ProgressBar
+            android:id="@+id/order_list_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:scrollbarStyle="outsideInset"/>
+        <RelativeLayout
+            android:id="@+id/empty_list_info"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:visibility="gone">
+            <ImageView
+                android:id="@+id/empty_icon"
+                android:layout_width="100sp"
+                android:layout_height="100sp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/empty_icon"/>
+            <TextView
+                android:layout_below="@+id/empty_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="No orders are available right now :("/>
+        </RelativeLayout>
+        <ListView
+            android:id="@+id/all_orders_listview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:background="@drawable/button_stroke"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="5sp"
+        android:id="@+id/suggestion_panel">
+
+        <LinearLayout
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:padding="10sp">
+            <TextView
+                android:id="@+id/suggestion_message"
+                android:text="Next optimal delivery:"
+                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="2">
+            </TextView>
+            <Button
+                android:id="@+id/suggestion_button"
+                android:layout_gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/colorBlue"
+                android:textColor="@color/white"
+                android:text="view">
+            </Button>
+
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

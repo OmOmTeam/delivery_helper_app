@@ -21,6 +21,12 @@ public class ItemHeaderResponseModel {
     private String recipientLocation;
     @SerializedName("order_type")
     private String orderType;
+    @SerializedName("state_code")
+    private String stateCode;
+    @SerializedName("delivery_time_from")
+    private String deliveryTimeFrom;
+    @SerializedName("delivery_time_to")
+    private String deliveryTimeTo;
 
     public String getOrderId() {
         return orderId;
@@ -52,5 +58,17 @@ public class ItemHeaderResponseModel {
 
     public String getOrderType() {
         return orderType;
+    }
+
+    public String getStateCode() {
+        return stateCode;
+    }
+
+    public String getDeliveryTimeFrom() {
+        return deliveryTimeFrom;
+    }
+
+    public String getDeliveryTimeTo() {
+        return deliveryTimeTo;
     }
 }

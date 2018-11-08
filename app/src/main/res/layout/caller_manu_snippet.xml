@@ -80,13 +80,5 @@
             android:backgroundTint="@color/colorBlue"
             android:layout_weight="1"
             android:text="Call Operator"/>
-        <Button
-            android:id="@+id/support_chat_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
-            android:textColor="@color/white"
-            android:layout_weight="1"
-            android:text="Open Chat" />
     </LinearLayout>
 </LinearLayout>

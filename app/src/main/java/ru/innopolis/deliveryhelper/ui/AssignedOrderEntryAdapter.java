@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +47,12 @@ public class AssignedOrderEntryAdapter extends ArrayAdapter<ItemHeaderResponseMo
         TextView title = listItem.findViewById(R.id.order_entry_title);
         TextView dimensions = listItem.findViewById(R.id.order_entry_sub_1);
         TextView weight = listItem.findViewById(R.id.order_entry_sub_2);
+        Button acceptEntryButton = listItem.findViewById(R.id.order_accept_button);
 
+        if(currentEntry.getStateCode().equals("2")){
+            acceptEntryButton.setText("picked");
+            acceptEntryButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.colorGreen));
+        }
         image.setImageResource(R.drawable.ic_letter);
         title.setText(currentEntry.getTitle());
         dimensions.setText(currentEntry.getDimensions());
