@@ -111,6 +111,7 @@ public class OrderViewController implements OrderViewMVC.Controller {
                             }
                             view.showProgressBar(false);
                             view.setActionState(Integer.parseInt(irm.getStateCode()));
+                            view.setCustomer(irm.getRecipientName(), irm.getRecipientPhone());
                         }else{
                             view.showNotification(irm.getError());
                         }

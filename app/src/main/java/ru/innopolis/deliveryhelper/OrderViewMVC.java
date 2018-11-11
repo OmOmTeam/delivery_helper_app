@@ -8,6 +8,7 @@ public interface OrderViewMVC {
         void showProgressBar(boolean visibility);
         void setActionState(int state);
         void setAssignedPanelState(int state);
+        void setCustomer(String name, String phone);
         void loadMap(String start, String end);
         void resetLoad();
     }

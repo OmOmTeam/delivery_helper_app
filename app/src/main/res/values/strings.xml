@@ -5,4 +5,5 @@
     <string name="CLOSE">CLOSE</string>
     <string name="entry_icon">Entry Icon</string>
     <string name="assigned">Assigned</string>
+    <string name="default_sms_message">There is a parcel awaiting delivery, but we are having trouble reaching you. Can you please tell ..template..</string>
 </resources>
