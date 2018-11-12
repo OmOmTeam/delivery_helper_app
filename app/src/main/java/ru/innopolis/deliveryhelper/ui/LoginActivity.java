@@ -20,6 +20,7 @@ import butterknife.ButterKnife;
 import ru.innopolis.deliveryhelper.LoginMVC;
 import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.controller.LoginController;
+import ru.innopolis.deliveryhelper.model.SafeStorage;
 
 import static android.graphics.Typeface.BOLD;
 
@@ -31,6 +32,8 @@ public class LoginActivity extends AppCompatActivity implements LoginMVC.View{
     TextView loginField;
     @BindView(R.id.master_password)
     TextView passwordField;
+    @BindView(R.id.ip_field)
+    TextView ipField;
     @BindView(R.id.button_login)
     Button loginButton;
 
@@ -44,8 +47,13 @@ public class LoginActivity extends AppCompatActivity implements LoginMVC.View{
         loginButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                String login = loginField.getText().toString().trim(),
-                        password = passwordField.getText().toString().trim();
+                String login = loginField.getText().toString().trim();
+                String password = passwordField.getText().toString().trim();
+
+                String ip = ipField.getText().toString().trim();
+                SafeStorage.setAddress(ip);
+                controller = new LoginController(LoginActivity.this);
+
                 controller.tryLogin(login, password);
                 //showDismissableNotification("Attempting to login");
             }

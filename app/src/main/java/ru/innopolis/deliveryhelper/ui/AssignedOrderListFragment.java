@@ -15,6 +15,9 @@ import android.widget.TextView;
 
 import org.apache.commons.lang3.ObjectUtils;
 
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +29,7 @@ import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseM
 
 public class AssignedOrderListFragment extends Fragment implements OrderListMVC.View {
 
+    private static final String TAG = "AssignedOrderListFrag";
     private AssignedOrderEntryAdapter oAdapter;
     private ListView listView;
     private OrderListMVC.Controller controller;
@@ -60,12 +64,34 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
             Log.e("NULL CAUGHT", e.getMessage());
         }
 
-        setSuggestionPanelVisibie(true);
         setSuggestionPanelContent("<big>Optimal Order for delivery:<br><b>AliExpress parcel</b><br><h5>Time period: 14:00 - 17:00</h5></big>");
         setSuggestionReferrer("4");
 
         return view;
     }
+
+    public void makeOptimalOrderSuggestion() {
+        getOptimalOrderIndex();
+
+    }
+
+    private int getOptimalOrderIndex() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        int optimalOrderIndex = -1;
+        List<ItemHeaderResponseModel> list = oAdapter.getOrderList();
+        for (int i = 0; i < list.size(); ++i) {
+            try {
+                Date date = sdf.parse(list.get(i).getDeliveryTimeTo());
+
+            } catch (ParseException e) {
+                Log.e(TAG, e.getMessage());
+            }
+        }
+        //TODO: FINISH IMPLEMENTATION
+        return optimalOrderIndex;
+    }
+
+
 
     public void showEmptyListInfo(boolean visibility) {
         if (visibility) {
@@ -147,7 +173,7 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
     }
 
     public void setSuggestionReferrer(String orderId) {
-        if (orderId!=null && !orderId.isEmpty()) {
+        if (orderId != null && !orderId.isEmpty()) {
             suggestionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

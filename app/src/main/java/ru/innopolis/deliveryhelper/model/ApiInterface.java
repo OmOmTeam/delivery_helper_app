@@ -11,6 +11,7 @@ import ru.innopolis.deliveryhelper.model.dataframes.response.AcceptanceModel;
 import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseModel;
 import ru.innopolis.deliveryhelper.model.dataframes.response.ItemResponseModel;
 import ru.innopolis.deliveryhelper.model.dataframes.response.LoginResponseModel;
+import ru.innopolis.deliveryhelper.model.dataframes.response.NumberResponseModel;
 
 public interface ApiInterface {
 
@@ -43,5 +44,8 @@ public interface ApiInterface {
 
     @POST("location/update")
     Call<AcceptanceModel> requestUpdateLocation(@Header("Token") String token, @Body RequestBody parameters);
+
+    @POST("support/call")
+    Call<NumberResponseModel> requestSupportNumber(@Header("Token") String token, @Body RequestBody parameters);
 
 }

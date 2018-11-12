@@ -79,6 +79,8 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
     ArrayList<Marker> markers;
     LatLng start, end;
     static final int BARCODE_READER_ACTIVITY_REQUEST = 1;  // The request code
+    private String codeChecker = "\\d{8}";
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -397,12 +399,12 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
         if (requestCode == BARCODE_READER_ACTIVITY_REQUEST && data != null) {
             Barcode barcode = data.getParcelableExtra(BarcodeReaderActivity.KEY_CAPTURED_BARCODE);
-            if (barcode.rawValue.equals("71717171")) {
-                showNotification(String.format("Order with <b>ID %s</b> is recognised<br>Code: <b>%s</b>", order_id, "71717171"));
+            if (checkCodeFormat(barcode.rawValue)) {
+                // notification is shown from controller that processes the operation
             } else {
-                showNotification(String.format("Order is not recognized<br>Code: <b>%s</b>", barcode.rawValue));
+                showNotification(String.format("Invalid barcode format, try typing manually", barcode.rawValue));
             }
-
+            controller.pickOrder(order_id, barcode.rawValue);
 
         }
 
@@ -547,5 +549,9 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         });
         alert.setView(innerView);
         alert.show();
+    }
+
+    public boolean checkCodeFormat(String val) {
+        return val.matches(codeChecker);
     }
 }

@@ -19,5 +19,6 @@ public interface OrderViewMVC {
         void validateRecipient(String orderId);
         void deliverOrder(String orderId, String key);
         void cancelOrder(String orderId);
+        void getSupportNumber();
     }
 }

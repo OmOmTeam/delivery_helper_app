@@ -33,10 +33,13 @@ import ru.innopolis.deliveryhelper.OrderViewMVC;
 import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.model.ApiInterface;
 import ru.innopolis.deliveryhelper.model.dataframes.request.ItemRequestModel;
+import ru.innopolis.deliveryhelper.model.dataframes.request.ItemRequestWKeyModel;
+import ru.innopolis.deliveryhelper.model.dataframes.request.LoginOnlyModel;
 import ru.innopolis.deliveryhelper.model.dataframes.response.AcceptanceModel;
 import ru.innopolis.deliveryhelper.model.dataframes.response.ItemResponseModel;
 import ru.innopolis.deliveryhelper.model.RetrofitService;
 import ru.innopolis.deliveryhelper.model.SafeStorage;
+import ru.innopolis.deliveryhelper.model.dataframes.response.NumberResponseModel;
 
 public class OrderViewController implements OrderViewMVC.Controller {
 
@@ -168,21 +171,175 @@ public class OrderViewController implements OrderViewMVC.Controller {
 
     @Override
     public void pickOrder(String orderId, String key) {
-        //TODO
+        try {
+            ItemRequestWKeyModel gtrm = new ItemRequestWKeyModel(orderId, SafeStorage.getUsername(), key);
+            Call<AcceptanceModel> call = api.requestPickOrder(SafeStorage.getToken(), RequestBody.create(MediaType.parse("application/json"), gson.toJson(gtrm)));
+            call.enqueue(new Callback<AcceptanceModel>() {
+                @Override
+                public void onResponse(Call<AcceptanceModel> call, Response<AcceptanceModel> response) {
+                    if (response.body() != null) {
+
+                        AcceptanceModel irm = response.body();
+                        if(irm.getError()==null||irm.getError().equals("null")){
+
+                            loadDetailList(orderId);
+                            view.showNotification("Order picked successfully");
+                        }else{
+                            view.showNotification(irm.getError());
+                        }
+                    } else {
+                        view.showNotification("Server error");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AcceptanceModel> call, Throwable t) {
+                    Log.e(TAG, t.getMessage());
+                    view.showNotification("Server Connection Error");
+                    call.cancel();
+                }
+            });
+        } catch (Exception e) {
+            view.showNotification(e.getMessage());
+        }
     }
 
     @Override
     public void validateRecipient(String orderId) {
-        //TODO
+        try {
+            ItemRequestModel gtrm = new ItemRequestModel(orderId, SafeStorage.getUsername());
+            Call<AcceptanceModel> call = api.requestValidateCustomer(SafeStorage.getToken(), RequestBody.create(MediaType.parse("application/json"), gson.toJson(gtrm)));
+            call.enqueue(new Callback<AcceptanceModel>() {
+                @Override
+                public void onResponse(Call<AcceptanceModel> call, Response<AcceptanceModel> response) {
+                    if (response.body() != null) {
+
+                        AcceptanceModel irm = response.body();
+                        if(irm.getError()==null||irm.getError().equals("null")){
+
+                            loadDetailList(orderId);
+                            view.showNotification("Order validated successfully");
+                        }else{
+                            view.showNotification(irm.getError());
+                        }
+                    } else {
+                        view.showNotification("Server error");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AcceptanceModel> call, Throwable t) {
+                    Log.e(TAG, t.getMessage());
+                    view.showNotification("Server Connection Error");
+                    call.cancel();
+                }
+            });
+        } catch (Exception e) {
+            view.showNotification(e.getMessage());
+        }
     }
 
     @Override
     public void deliverOrder(String orderId, String key) {
-        //TODO
+        try {
+            ItemRequestWKeyModel gtrm = new ItemRequestWKeyModel(orderId, SafeStorage.getUsername(), key);
+            Call<AcceptanceModel> call = api.requestDeliverOrder(SafeStorage.getToken(), RequestBody.create(MediaType.parse("application/json"), gson.toJson(gtrm)));
+            call.enqueue(new Callback<AcceptanceModel>() {
+                @Override
+                public void onResponse(Call<AcceptanceModel> call, Response<AcceptanceModel> response) {
+                    if (response.body() != null) {
+
+                        AcceptanceModel irm = response.body();
+                        if(irm.getError()==null||irm.getError().equals("null")){
+
+                            loadDetailList(orderId);
+                            view.showNotification("Order is now marked as delivered");
+                        }else{
+                            view.showNotification(irm.getError());
+                        }
+                    } else {
+                        view.showNotification("Server error");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AcceptanceModel> call, Throwable t) {
+                    Log.e(TAG, t.getMessage());
+                    view.showNotification("Server Connection Error");
+                    call.cancel();
+                }
+            });
+        } catch (Exception e) {
+            view.showNotification(e.getMessage());
+        }
     }
 
     @Override
     public void cancelOrder(String orderId) {
-        //TODO
+        try {
+            ItemRequestModel gtrm = new ItemRequestModel(orderId, SafeStorage.getUsername());
+            Call<AcceptanceModel> call = api.requestDismissOrder(SafeStorage.getToken(), RequestBody.create(MediaType.parse("application/json"), gson.toJson(gtrm)));
+            call.enqueue(new Callback<AcceptanceModel>() {
+                @Override
+                public void onResponse(Call<AcceptanceModel> call, Response<AcceptanceModel> response) {
+                    if (response.body() != null) {
+
+                        AcceptanceModel irm = response.body();
+                        if(irm.getError()==null||irm.getError().equals("null")){
+
+                            loadDetailList(orderId);
+                            view.showNotification("Order is now available for other delivery operators");
+                        }else{
+                            view.showNotification(irm.getError());
+                        }
+                    } else {
+                        view.showNotification("Server error");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<AcceptanceModel> call, Throwable t) {
+                    Log.e(TAG, t.getMessage());
+                    view.showNotification("Server Connection Error");
+                    call.cancel();
+                }
+            });
+        } catch (Exception e) {
+            view.showNotification(e.getMessage());
+        }
+    }
+
+    @Override
+    public void getSupportNumber(){
+        try {
+            LoginOnlyModel gtrm = new LoginOnlyModel(SafeStorage.getUsername());
+            Call<NumberResponseModel> call = api.requestSupportNumber(SafeStorage.getToken(), RequestBody.create(MediaType.parse("application/json"), gson.toJson(gtrm)));
+            call.enqueue(new Callback<NumberResponseModel>() {
+                @Override
+                public void onResponse(Call<NumberResponseModel> call, Response<NumberResponseModel> response) {
+                    if (response.body() != null) {
+
+                        NumberResponseModel irm = response.body();
+                        if(irm.getError()==null||irm.getError().equals("null")){
+
+                            view.showNotification("Order picked successfully");
+                        }else{
+                            view.showNotification(irm.getError());
+                        }
+                    } else {
+                        view.showNotification("Server error");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<NumberResponseModel> call, Throwable t) {
+                    Log.e(TAG, t.getMessage());
+                    view.showNotification("Server Connection Error");
+                    call.cancel();
+                }
+            });
+        } catch (Exception e) {
+            view.showNotification(e.getMessage());
+        }
     }
 }

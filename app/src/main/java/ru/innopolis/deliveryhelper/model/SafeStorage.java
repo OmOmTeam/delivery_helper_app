@@ -13,6 +13,7 @@ public class SafeStorage {
     private final static String USERNAME = "username_key";
     private final static String PASSWORD = "password_key";
     private final static String TOKEN = "token_key";
+    private final static String ADDRESS = "ip_address";
 
     static public void setUsername(String username) {
         SecurePreferences.setValue(USERNAME, username);
@@ -35,6 +36,12 @@ public class SafeStorage {
         return SecurePreferences.getStringValue(TOKEN,null);
     }
 
+    static public void setAddress(String address) {
+        SecurePreferences.setValue(ADDRESS, address);
+    }
+    static public String getAddress() {
+        return SecurePreferences.getStringValue(ADDRESS, null);
+    }
 
     private static String bytesToHexString(byte[] bytes) {
         // http://stackoverflow.com/questions/332079
