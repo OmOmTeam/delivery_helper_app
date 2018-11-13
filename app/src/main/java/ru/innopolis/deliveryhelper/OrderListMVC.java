@@ -7,7 +7,6 @@ import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseM
 
 public interface OrderListMVC {
     interface View extends Notifiable {
-//        void addEntity(String orderId, String title, String weight, String dimensions, String type);
         void updateList(List<ItemHeaderResponseModel> orderList);
         void clearList();
         void hideProgressBar();

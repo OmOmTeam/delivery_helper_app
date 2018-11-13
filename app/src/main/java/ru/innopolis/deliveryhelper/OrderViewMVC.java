@@ -11,6 +11,7 @@ public interface OrderViewMVC {
         void setCustomer(String name, String phone);
         void loadMap(String start, String end);
         void resetLoad();
+        void openCaller(String number);
     }
     interface Controller {
         void loadDetailList(String orderId);

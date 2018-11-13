@@ -16,9 +16,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import ru.innopolis.deliveryhelper.OrderEntryAdapterCallback;
 import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseModel;
 
@@ -26,7 +23,6 @@ public class OrderEntryAdapter extends ArrayAdapter<ItemHeaderResponseModel> {
     private Context oContext;
     private List<ItemHeaderResponseModel> orderList = new ArrayList<>();
 
-    OrderEntryAdapterCallback callback;
     /**
      * Adapter for the applet list
      */
@@ -50,7 +46,23 @@ public class OrderEntryAdapter extends ArrayAdapter<ItemHeaderResponseModel> {
         TextView weight = listItem.findViewById(R.id.order_entry_sub_2);
         Button btn = listItem.findViewById(R.id.order_accept_button);
 
-        image.setImageResource(R.drawable.ic_letter);
+        String orderType = currentEntry.getOrderType();
+        switch (orderType) {
+            case "0":
+                image.setImageResource(R.drawable.icon_letter);
+                break;
+            case "1":
+                image.setImageResource(R.drawable.small_box);
+                break;
+            case "2":
+                image.setImageResource(R.drawable.large_box);
+                break;
+            case "3":
+                image.setImageResource(R.drawable.pallette);
+                break;
+            default:
+                image.setImageResource(R.drawable.icon_letter);
+        }
         title.setText(currentEntry.getTitle());
         dimensions.setText(currentEntry.getDimensions());
         weight.setText(currentEntry.getWeight());
@@ -59,10 +71,7 @@ public class OrderEntryAdapter extends ArrayAdapter<ItemHeaderResponseModel> {
         return listItem;
     }
 
-    public void setCallback(OrderEntryAdapterCallback callback){
-        this.callback = callback;
-    }
-    public List<ItemHeaderResponseModel> getOrderList(){
+    public List<ItemHeaderResponseModel> getOrderList() {
         return orderList;
     }
 }

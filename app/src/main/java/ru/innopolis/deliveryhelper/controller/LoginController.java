@@ -32,6 +32,11 @@ public class LoginController implements LoginMVC.Controller {
         api = RetrofitService.getInstance().create(ApiInterface.class);
     }
 
+    /**
+     * Request user login with credentials, on success store the token in safe storage
+     * @param login employee id
+     * @param password password corresponding to given employee id
+     */
     @Override
     public void tryLogin(final String login, final String password) {
         //TODO: check login and password validity

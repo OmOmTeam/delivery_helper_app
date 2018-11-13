@@ -6,11 +6,9 @@ public interface ContainerMVC {
         void openOrderList();
         void openOrderView(String orderId);
         void openAssignedOrderList();
-        void openCurrentOrder();
         void openSettings();
     }
     interface Controller {
         void logOut();
-        // ArrayList<ArrayList<String>> getOrderDetails()
     }
 }

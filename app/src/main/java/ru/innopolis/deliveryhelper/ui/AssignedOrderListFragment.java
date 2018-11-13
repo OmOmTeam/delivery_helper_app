@@ -30,9 +30,14 @@ import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseM
 public class AssignedOrderListFragment extends Fragment implements OrderListMVC.View {
 
     private static final String TAG = "AssignedOrderListFrag";
+    // Controller for that view
+    private OrderListMVC.Controller controller;
+
+    // Main list element in fragment
     private AssignedOrderEntryAdapter oAdapter;
     private ListView listView;
-    private OrderListMVC.Controller controller;
+
+    // UI elements in fragment
     private ProgressBar progressBar;
     private View emptyListInfo;
     private View suggestionPanel;
@@ -44,15 +49,27 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_assigned_order_list, container, false);
 
-        getActivity().setTitle("Assigned Orders");
+        // set the title for page
+        try{
+            getActivity().setTitle("Assigned Orders");
+        }catch(NullPointerException e){
+            Log.e(TAG, e.getMessage());
+        }
+
+        // create controller
         controller = new AssignedOrderListController(this);
+
+        //
         listView = view.findViewById(R.id.all_orders_listview);
         emptyListInfo = view.findViewById(R.id.empty_list_info);
         suggestionPanel = view.findViewById(R.id.suggestion_panel);
         suggestionContent = view.findViewById(R.id.suggestion_message);
         suggestionButton = view.findViewById(R.id.suggestion_button);
 
+        // ensure that suggestion is closed while page is loading
         setSuggestionPanelVisibie(false);
+
+        // assign list interaction actions
         try {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -63,36 +80,58 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
         } catch (NullPointerException e) {
             Log.e("NULL CAUGHT", e.getMessage());
         }
-
-        setSuggestionPanelContent("<big>Optimal Order for delivery:<br><b>AliExpress parcel</b><br><h5>Time period: 14:00 - 17:00</h5></big>");
-        setSuggestionReferrer("4");
-
         return view;
     }
 
+    /**
+     * Try to find most optimal order from the list of assigned orders to make a suggestion for delivery operator
+     */
     public void makeOptimalOrderSuggestion() {
-        getOptimalOrderIndex();
-
+        int index = getOptimalOrderIndex();
+        if (index >= 0) {
+            List<ItemHeaderResponseModel> list = oAdapter.getOrderList();
+            ItemHeaderResponseModel order = list.get(index);
+            setSuggestionPanelContent(String.format("<big>Optimal Order for delivery:<br><b>%s</b><br><h5>Time period:<br> %s - %s</h5></big>",
+                    order.getTitle(), order.getDeliveryTimeFrom(), order.getDeliveryTimeTo()));
+            setSuggestionReferrer(order.getOrderId());
+            setSuggestionPanelVisibie(true);
+        } else {
+            setSuggestionPanelVisibie(false);
+        }
     }
 
+    /**
+     * Get order with nearest closing time
+     *
+     * @return index of the order
+     */
     private int getOptimalOrderIndex() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         int optimalOrderIndex = -1;
+        long minTimeTo = Long.MAX_VALUE;
+
         List<ItemHeaderResponseModel> list = oAdapter.getOrderList();
         for (int i = 0; i < list.size(); ++i) {
             try {
+                // compare time to order and find the nearest
                 Date date = sdf.parse(list.get(i).getDeliveryTimeTo());
-
+                Date now = new Date();
+                long timeTo = date.getTime() - now.getTime();
+                if (timeTo >= 0 && timeTo < minTimeTo) {
+                    minTimeTo = timeTo;
+                    optimalOrderIndex = i;
+                }
             } catch (ParseException e) {
                 Log.e(TAG, e.getMessage());
             }
         }
-        //TODO: FINISH IMPLEMENTATION
         return optimalOrderIndex;
     }
 
-
-
+    /**
+     * Show or hide message overlay telling that the list is empty
+     * @param visibility true to show, false otherwise
+     */
     public void showEmptyListInfo(boolean visibility) {
         if (visibility) {
             emptyListInfo.setVisibility(View.VISIBLE);
@@ -101,12 +140,19 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
         }
     }
 
+    /**
+     * Perform actions when app is reopened
+     */
     @Override
     public void onResume() {
         super.onResume();
         controller.loadOrderList();
     }
 
+    /**
+     * Insert list data into list view
+     * @param orderList list of actual order elements
+     */
     public void updateList(List<ItemHeaderResponseModel> orderList) {
         try {
             if (orderList.isEmpty()) {
@@ -117,11 +163,15 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
                 oAdapter = new AssignedOrderEntryAdapter(getContext(), orderList);
                 listView.setAdapter(oAdapter);
             }
+            makeOptimalOrderSuggestion();
         } catch (NullPointerException e) {
             Log.e("NULL CAUGHT", e.getMessage());
         }
     }
 
+    /**
+     * Hide spinning load indicator over the list view
+     */
     @Override
     public void hideProgressBar() {
         try {
@@ -134,6 +184,9 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
         }
     }
 
+    /**
+     * Show spinning load indicator over the list view
+     */
     @Override
     public void showProgressBar() {
         try {
@@ -155,11 +208,19 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
         }
     }
 
+    /**
+     * Show a notification to user
+     * @param message - string that user should read
+     */
     @Override
     public void showNotification(String message) {
         ((ContainerActivity) getActivity()).showNotification(message);
     }
 
+    /**
+     * Show or hide suggestion panel for optimal order
+     * @param state true to show, false otherwise
+     */
     public void setSuggestionPanelVisibie(boolean state) {
         if (state) {
             suggestionPanel.setVisibility(View.VISIBLE);
@@ -168,10 +229,18 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
         }
     }
 
+    /**
+     * Set content for the order that will be actually shown as optimal order
+     * @param content string with html formatting
+     */
     public void setSuggestionPanelContent(String content) {
         suggestionContent.setText(Html.fromHtml(content));
     }
 
+    /**
+     * Set action to open order view with optimal order
+     * @param orderId the id of optimal order in suggestion panel
+     */
     public void setSuggestionReferrer(String orderId) {
         if (orderId != null && !orderId.isEmpty()) {
             suggestionButton.setOnClickListener(new View.OnClickListener() {

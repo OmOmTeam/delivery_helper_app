@@ -151,6 +151,13 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     }
 
+    @Override
+    public void openCaller(String number) {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse(String.format("tel:%s", number)));
+        startActivity(intent);
+    }
+
     public LatLng locationFromString(String s) {
         if (s == null) {
             return null;
@@ -528,9 +535,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         recipientCallButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse(String.format("tel:%s", recipientNumber)));
-                startActivity(intent);
+                openCaller(recipientNumber);
             }
         });
         recipientSMSButton.setOnClickListener(new View.OnClickListener() {
@@ -545,6 +550,12 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
                 } catch (NullPointerException e) {
                     Log.e(TAG, e.getMessage());
                 }
+            }
+        });
+        supportCallButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                controller.getSupportNumber();
             }
         });
         alert.setView(innerView);

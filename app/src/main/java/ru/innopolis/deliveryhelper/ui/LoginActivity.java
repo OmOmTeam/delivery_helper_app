@@ -60,12 +60,21 @@ public class LoginActivity extends AppCompatActivity implements LoginMVC.View{
         });
     }
 
+    /**
+     * Fill required
+     * @param login
+     * @param password
+     */
     @Override
     public void setCredentials(String login, String password) {
-        this.loginButton.setText(login);
+        this.loginField.setText(login);
         this.passwordField.setText(password);
     }
 
+    /**
+     * Show notification on top of screen for user
+     * @param text Message in html format that user should see
+     */
     @Override
     public void showNotification(String text) {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
@@ -84,19 +93,9 @@ public class LoginActivity extends AppCompatActivity implements LoginMVC.View{
         alert.show();
     }
 
-    //TODO: extend this method to interface
-    public void showDismissableNotification(String message){
-        View parentLayout = findViewById(android.R.id.content);
-        final Snackbar snack = Snackbar.make(parentLayout, message, Snackbar.LENGTH_INDEFINITE);
-        snack.setAction(R.string.CLOSE, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                snack.dismiss();
-            }
-        });
-        snack.show();
-    }
-
+    /**
+     * Make transition to order list activity
+     */
     public void goToOrderListActivity() {
         Intent intent = new Intent(LoginActivity.this, ContainerActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

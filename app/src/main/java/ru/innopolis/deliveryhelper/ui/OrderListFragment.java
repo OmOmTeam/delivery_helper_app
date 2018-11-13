@@ -1,6 +1,5 @@
 package ru.innopolis.deliveryhelper.ui;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -10,25 +9,18 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 
-import org.apache.commons.lang3.ObjectUtils;
-
-import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import ru.innopolis.deliveryhelper.ContainerMVC;
-import ru.innopolis.deliveryhelper.OrderEntryAdapterCallback;
 import ru.innopolis.deliveryhelper.OrderListMVC;
 import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.controller.OrderListController;
 import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseModel;
 
 
-public class OrderListFragment extends Fragment implements OrderListMVC.View, OrderEntryAdapterCallback {
+public class OrderListFragment extends Fragment implements OrderListMVC.View {
 
+    private static final String TAG = "OrderListFragment";
     private OrderEntryAdapter oAdapter;
     private ListView listView;
     private OrderListMVC.Controller controller;
@@ -40,11 +32,19 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_orderlist, container, false);
 
-        getActivity().setTitle("Available Orders");
+        // set a title on top of page
+        try{
+            getActivity().setTitle("Available Orders");
+        }catch(NullPointerException e){
+            Log.e(TAG, e.getMessage());
+        }
+
+        // assign control entities for this view
         listView = view.findViewById(R.id.all_orders_listview);
         controller = new OrderListController(this);
         emptyListInfo = view.findViewById(R.id.empty_list_info);
 
+        // assign actions for items of the list view
         try {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -53,18 +53,20 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
                 }
             });
         } catch (NullPointerException e) {
-            Log.e("NULL CAUGHT", e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
 
         return view;
     }
 
+    // perform reload when given view is reopened
     @Override
     public void onResume() {
         super.onResume();
         controller.loadOrderList();
     }
 
+    //
     public void updateList(List<ItemHeaderResponseModel> orderList) {
         try {
             if (orderList.isEmpty()){
@@ -73,11 +75,10 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
             }else{
                 showEmptyListInfo(false);
                 oAdapter = new OrderEntryAdapter(getContext(), orderList);
-                oAdapter.setCallback(this);
                 listView.setAdapter(oAdapter);
             }
         } catch (NullPointerException e) {
-            Log.e("NULL CAUGHT", e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -129,10 +130,5 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View, Or
         } catch (NullPointerException e) {
             Log.e("NULL CAUGHT", e.getMessage());
         }
-    }
-
-    @Override
-    public void assignOrder(String orderId) {
-        showNotification("Trying to assign: " + orderId);
     }
 }

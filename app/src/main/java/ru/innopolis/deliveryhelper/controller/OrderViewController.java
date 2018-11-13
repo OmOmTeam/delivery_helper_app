@@ -1,28 +1,9 @@
 package ru.innopolis.deliveryhelper.controller;
 
-import android.graphics.Color;
-import android.util.Pair;
 import android.util.Log;
+import android.util.Pair;
 
-import com.directions.route.Route;
-import com.directions.route.RouteException;
-import com.directions.route.RoutingListener;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
-
-import java.util.ArrayList;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -30,15 +11,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import ru.innopolis.deliveryhelper.OrderViewMVC;
-import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.model.ApiInterface;
+import ru.innopolis.deliveryhelper.model.RetrofitService;
+import ru.innopolis.deliveryhelper.model.SafeStorage;
 import ru.innopolis.deliveryhelper.model.dataframes.request.ItemRequestModel;
 import ru.innopolis.deliveryhelper.model.dataframes.request.ItemRequestWKeyModel;
 import ru.innopolis.deliveryhelper.model.dataframes.request.LoginOnlyModel;
 import ru.innopolis.deliveryhelper.model.dataframes.response.AcceptanceModel;
 import ru.innopolis.deliveryhelper.model.dataframes.response.ItemResponseModel;
-import ru.innopolis.deliveryhelper.model.RetrofitService;
-import ru.innopolis.deliveryhelper.model.SafeStorage;
 import ru.innopolis.deliveryhelper.model.dataframes.response.NumberResponseModel;
 
 public class OrderViewController implements OrderViewMVC.Controller {
@@ -49,49 +29,20 @@ public class OrderViewController implements OrderViewMVC.Controller {
     private ApiInterface api;
     private Gson gson;
 
-
-
+    /**
+     * Constructor of controller
+     * @param view calling view
+     */
     public OrderViewController(OrderViewMVC.View view) {
         this.view = view;
         gson = new Gson();
         api = RetrofitService.getInstance().create(ApiInterface.class);
-
-
     }
 
-    public void requestAssignOrder(final String orderId){
-        try {
-            ItemRequestModel gtrm = new ItemRequestModel(orderId,SafeStorage.getUsername());
-            Call<AcceptanceModel> call = api.requestAssignOrder(SafeStorage.getToken(), RequestBody.create(MediaType.parse("application/json"), gson.toJson(gtrm)));
-            call.enqueue(new Callback<AcceptanceModel>() {
-                @Override
-                public void onResponse(Call<AcceptanceModel> call, Response<AcceptanceModel> response) {
-                    if (response.body() != null) {
-
-                        AcceptanceModel irm = response.body();
-                        if(irm.getError()==null||irm.getError().equals("null")){
-
-                            loadDetailList(orderId);
-                        }else{
-                            view.showNotification(irm.getError());
-                        }
-                    } else {
-                        view.showNotification("Server error");
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<AcceptanceModel> call, Throwable t) {
-                    Log.e(TAG, t.getMessage());
-                    view.showNotification("Server Connection Error");
-                    call.cancel();
-                }
-            });
-        } catch (Exception e) {
-            view.showNotification(e.getMessage());
-        }
-    }
-
+    /**
+     * Request details list for the order and build UI properties based on it
+     * @param orderId id of given order
+     */
     public void loadDetailList(String orderId) {
         try {
             view.resetLoad();
@@ -135,6 +86,10 @@ public class OrderViewController implements OrderViewMVC.Controller {
         }
     }
 
+    /**
+     * Request the order to be assigned to given account
+     * @param orderId id of given order
+     */
     @Override
     public void acceptOrder(String orderId) {
         try {
@@ -169,6 +124,11 @@ public class OrderViewController implements OrderViewMVC.Controller {
         }
     }
 
+    /**
+     * Request the order to be marked as picked
+     * @param orderId id of given order
+     * @param key code for parcel pick approval
+     */
     @Override
     public void pickOrder(String orderId, String key) {
         try {
@@ -204,6 +164,10 @@ public class OrderViewController implements OrderViewMVC.Controller {
         }
     }
 
+    /**
+     * Request sending of SMS message to customer with code that is needed for approval of order delivery
+     * @param orderId id of given order
+     */
     @Override
     public void validateRecipient(String orderId) {
         try {
@@ -218,7 +182,7 @@ public class OrderViewController implements OrderViewMVC.Controller {
                         if(irm.getError()==null||irm.getError().equals("null")){
 
                             loadDetailList(orderId);
-                            view.showNotification("Order validated successfully");
+                            view.showNotification("New SMS was sent to recipient");
                         }else{
                             view.showNotification(irm.getError());
                         }
@@ -239,6 +203,11 @@ public class OrderViewController implements OrderViewMVC.Controller {
         }
     }
 
+    /**
+     * Request the order delivery to me approved, with a validation code
+     * @param orderId id of given order
+     * @param key code that was received by customer
+     */
     @Override
     public void deliverOrder(String orderId, String key) {
         try {
@@ -274,6 +243,10 @@ public class OrderViewController implements OrderViewMVC.Controller {
         }
     }
 
+    /**
+     * Request the order to be cancelled and made available for other delivery operators again
+     * @param orderId id of given order
+     */
     @Override
     public void cancelOrder(String orderId) {
         try {
@@ -309,6 +282,9 @@ public class OrderViewController implements OrderViewMVC.Controller {
         }
     }
 
+    /**
+     * Request a number of available support operator to resolve a technical request/issue
+     */
     @Override
     public void getSupportNumber(){
         try {
@@ -321,8 +297,7 @@ public class OrderViewController implements OrderViewMVC.Controller {
 
                         NumberResponseModel irm = response.body();
                         if(irm.getError()==null||irm.getError().equals("null")){
-
-                            view.showNotification("Order picked successfully");
+                            view.openCaller(irm.getNumber());
                         }else{
                             view.showNotification(irm.getError());
                         }
