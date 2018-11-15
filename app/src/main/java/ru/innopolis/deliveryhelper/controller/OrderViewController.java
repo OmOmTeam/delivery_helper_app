@@ -21,17 +21,25 @@ import ru.innopolis.deliveryhelper.model.dataframes.response.AcceptanceModel;
 import ru.innopolis.deliveryhelper.model.dataframes.response.ItemResponseModel;
 import ru.innopolis.deliveryhelper.model.dataframes.response.NumberResponseModel;
 
+import static ru.innopolis.deliveryhelper.model.PlainConsts.internal_server_error_message;
+import static ru.innopolis.deliveryhelper.model.PlainConsts.order_marked_available_message;
+import static ru.innopolis.deliveryhelper.model.PlainConsts.order_marked_delivered_message;
+import static ru.innopolis.deliveryhelper.model.PlainConsts.order_picked_successfully_message;
+import static ru.innopolis.deliveryhelper.model.PlainConsts.server_connection_error_message;
+import static ru.innopolis.deliveryhelper.model.PlainConsts.sms_sent_message;
+
 public class OrderViewController implements OrderViewMVC.Controller {
 
 
-    private final String TAG = "LoginController";
+    private final String TAG = "OrderViewController";
     private OrderViewMVC.View view;
     private ApiInterface api;
     private Gson gson;
 
     /**
-     * Constructor of controller
-     * @param view calling view
+     * Constructor
+     *
+     * @param view Calling view
      */
     public OrderViewController(OrderViewMVC.View view) {
         this.view = view;
@@ -41,6 +49,7 @@ public class OrderViewController implements OrderViewMVC.Controller {
 
     /**
      * Request details list for the order and build UI properties based on it
+     *
      * @param orderId id of given order
      */
     public void loadDetailList(String orderId) {
@@ -56,28 +65,28 @@ public class OrderViewController implements OrderViewMVC.Controller {
                     if (response.body() != null) {
 
                         ItemResponseModel irm = response.body();
-                        if(irm.getError()==null||irm.getError().equals("null")){
+                        if (irm.getError() == null || irm.getError().equals("null")) {
 
                             view.loadMap(irm.getWarehouseLocation(), irm.getRecipientLocation());
 
-                            for(Pair<String, String> pair : irm.getAvailableParameters()) {
+                            for (Pair<String, String> pair : irm.getAvailableParameters()) {
                                 view.addDetailEntity(pair.first, pair.second);
                             }
                             view.showProgressBar(false);
                             view.setActionState(Integer.parseInt(irm.getStateCode()));
                             view.setCustomer(irm.getRecipientName(), irm.getRecipientPhone());
-                        }else{
+                        } else {
                             view.showNotification(irm.getError());
                         }
                     } else {
-                        view.showNotification("Server error");
+                        view.showNotification(internal_server_error_message);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<ItemResponseModel> call, Throwable t) {
                     Log.e(TAG, t.getMessage());
-                    view.showNotification("Server Connection Error");
+                    view.showNotification(server_connection_error_message);
                     call.cancel();
                 }
             });
@@ -88,12 +97,13 @@ public class OrderViewController implements OrderViewMVC.Controller {
 
     /**
      * Request the order to be assigned to given account
+     *
      * @param orderId id of given order
      */
     @Override
     public void acceptOrder(String orderId) {
         try {
-            ItemRequestModel gtrm = new ItemRequestModel(orderId,SafeStorage.getUsername());
+            ItemRequestModel gtrm = new ItemRequestModel(orderId, SafeStorage.getUsername());
             Call<AcceptanceModel> call = api.requestAssignOrder(SafeStorage.getToken(), RequestBody.create(MediaType.parse("application/json"), gson.toJson(gtrm)));
             call.enqueue(new Callback<AcceptanceModel>() {
                 @Override
@@ -101,21 +111,21 @@ public class OrderViewController implements OrderViewMVC.Controller {
                     if (response.body() != null) {
 
                         AcceptanceModel irm = response.body();
-                        if(irm.getError()==null||irm.getError().equals("null")){
+                        if (irm.getError() == null || irm.getError().equals("null")) {
 
                             loadDetailList(orderId);
-                        }else{
+                        } else {
                             view.showNotification(irm.getError());
                         }
                     } else {
-                        view.showNotification("Server error");
+                        view.showNotification(internal_server_error_message);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<AcceptanceModel> call, Throwable t) {
                     Log.e(TAG, t.getMessage());
-                    view.showNotification("Server Connection Error");
+                    view.showNotification(server_connection_error_message);
                     call.cancel();
                 }
             });
@@ -126,8 +136,9 @@ public class OrderViewController implements OrderViewMVC.Controller {
 
     /**
      * Request the order to be marked as picked
+     *
      * @param orderId id of given order
-     * @param key code for parcel pick approval
+     * @param key     code for parcel pick approval
      */
     @Override
     public void pickOrder(String orderId, String key) {
@@ -140,22 +151,22 @@ public class OrderViewController implements OrderViewMVC.Controller {
                     if (response.body() != null) {
 
                         AcceptanceModel irm = response.body();
-                        if(irm.getError()==null||irm.getError().equals("null")){
+                        if (irm.getError() == null || irm.getError().equals("null")) {
 
                             loadDetailList(orderId);
-                            view.showNotification("Order picked successfully");
-                        }else{
+                            view.showNotification(order_picked_successfully_message);
+                        } else {
                             view.showNotification(irm.getError());
                         }
                     } else {
-                        view.showNotification("Server error");
+                        view.showNotification(internal_server_error_message);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<AcceptanceModel> call, Throwable t) {
                     Log.e(TAG, t.getMessage());
-                    view.showNotification("Server Connection Error");
+                    view.showNotification(server_connection_error_message);
                     call.cancel();
                 }
             });
@@ -166,6 +177,7 @@ public class OrderViewController implements OrderViewMVC.Controller {
 
     /**
      * Request sending of SMS message to customer with code that is needed for approval of order delivery
+     *
      * @param orderId id of given order
      */
     @Override
@@ -179,22 +191,22 @@ public class OrderViewController implements OrderViewMVC.Controller {
                     if (response.body() != null) {
 
                         AcceptanceModel irm = response.body();
-                        if(irm.getError()==null||irm.getError().equals("null")){
+                        if (irm.getError() == null || irm.getError().equals("null")) {
 
                             loadDetailList(orderId);
-                            view.showNotification("New SMS was sent to recipient");
-                        }else{
+                            view.showNotification(sms_sent_message);
+                        } else {
                             view.showNotification(irm.getError());
                         }
                     } else {
-                        view.showNotification("Server error");
+                        view.showNotification(internal_server_error_message);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<AcceptanceModel> call, Throwable t) {
                     Log.e(TAG, t.getMessage());
-                    view.showNotification("Server Connection Error");
+                    view.showNotification(server_connection_error_message);
                     call.cancel();
                 }
             });
@@ -205,8 +217,9 @@ public class OrderViewController implements OrderViewMVC.Controller {
 
     /**
      * Request the order delivery to me approved, with a validation code
+     *
      * @param orderId id of given order
-     * @param key code that was received by customer
+     * @param key     code that was received by customer
      */
     @Override
     public void deliverOrder(String orderId, String key) {
@@ -219,22 +232,22 @@ public class OrderViewController implements OrderViewMVC.Controller {
                     if (response.body() != null) {
 
                         AcceptanceModel irm = response.body();
-                        if(irm.getError()==null||irm.getError().equals("null")){
+                        if (irm.getError() == null || irm.getError().equals("null")) {
 
                             loadDetailList(orderId);
-                            view.showNotification("Order is now marked as delivered");
-                        }else{
+                            view.showNotification(order_marked_delivered_message);
+                        } else {
                             view.showNotification(irm.getError());
                         }
                     } else {
-                        view.showNotification("Server error");
+                        view.showNotification(internal_server_error_message);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<AcceptanceModel> call, Throwable t) {
                     Log.e(TAG, t.getMessage());
-                    view.showNotification("Server Connection Error");
+                    view.showNotification(server_connection_error_message);
                     call.cancel();
                 }
             });
@@ -245,6 +258,7 @@ public class OrderViewController implements OrderViewMVC.Controller {
 
     /**
      * Request the order to be cancelled and made available for other delivery operators again
+     *
      * @param orderId id of given order
      */
     @Override
@@ -258,22 +272,22 @@ public class OrderViewController implements OrderViewMVC.Controller {
                     if (response.body() != null) {
 
                         AcceptanceModel irm = response.body();
-                        if(irm.getError()==null||irm.getError().equals("null")){
+                        if (irm.getError() == null || irm.getError().equals("null")) {
 
                             loadDetailList(orderId);
-                            view.showNotification("Order is now available for other delivery operators");
-                        }else{
+                            view.showNotification(order_marked_available_message);
+                        } else {
                             view.showNotification(irm.getError());
                         }
                     } else {
-                        view.showNotification("Server error");
+                        view.showNotification(internal_server_error_message);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<AcceptanceModel> call, Throwable t) {
                     Log.e(TAG, t.getMessage());
-                    view.showNotification("Server Connection Error");
+                    view.showNotification(server_connection_error_message);
                     call.cancel();
                 }
             });
@@ -286,7 +300,7 @@ public class OrderViewController implements OrderViewMVC.Controller {
      * Request a number of available support operator to resolve a technical request/issue
      */
     @Override
-    public void getSupportNumber(){
+    public void getSupportNumber() {
         try {
             LoginOnlyModel gtrm = new LoginOnlyModel(SafeStorage.getUsername());
             Call<NumberResponseModel> call = api.requestSupportNumber(SafeStorage.getToken(), RequestBody.create(MediaType.parse("application/json"), gson.toJson(gtrm)));
@@ -296,20 +310,20 @@ public class OrderViewController implements OrderViewMVC.Controller {
                     if (response.body() != null) {
 
                         NumberResponseModel irm = response.body();
-                        if(irm.getError()==null||irm.getError().equals("null")){
+                        if (irm.getError() == null || irm.getError().equals("null")) {
                             view.openCaller(irm.getNumber());
-                        }else{
+                        } else {
                             view.showNotification(irm.getError());
                         }
                     } else {
-                        view.showNotification("Server error");
+                        view.showNotification(internal_server_error_message);
                     }
                 }
 
                 @Override
                 public void onFailure(Call<NumberResponseModel> call, Throwable t) {
                     Log.e(TAG, t.getMessage());
-                    view.showNotification("Server Connection Error");
+                    view.showNotification(server_connection_error_message);
                     call.cancel();
                 }
             });

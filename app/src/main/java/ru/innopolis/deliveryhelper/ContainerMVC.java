@@ -7,6 +7,7 @@ public interface ContainerMVC {
         void openOrderView(String orderId);
         void openAssignedOrderList();
         void openSettings();
+        void stopLocationService();
     }
     interface Controller {
         void logOut();

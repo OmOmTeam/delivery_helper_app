@@ -26,6 +26,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.directions.route.AbstractRouting;
 import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
@@ -46,51 +47,69 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.notbytes.barcode_reader.BarcodeReaderActivity;
 
-import org.apache.commons.lang3.ObjectUtils;
-
 import java.util.ArrayList;
 
 import ru.innopolis.deliveryhelper.OrderViewMVC;
 import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.controller.OrderViewController;
 
+import static ru.innopolis.deliveryhelper.model.PlainConsts.barcode_checker_regexp;
+
 public class OrderViewFragment extends Fragment implements OrderViewMVC.View, RoutingListener, OnMapReadyCallback {
 
     private static final String TAG = "OrderViewFragment";
     private OrderViewMVC.Controller controller;
 
+    // UI elements
     TableLayout orderDetails;
     Button cancelButton;
     ProgressBar progressBar;
     View assignedPanel;
-    private boolean variator;
-
-    private int actionState;
     Button actionButton;
 
-    private String customer_name;
-    private String customer_phone;
-    private String order_id;
+    // list element color tint switching mechanism
+    private boolean variator;
+
+    // stored data for associated order
+    private String customerName;
+    private String customerPhone;
+    private String orderId;
     private Button assignedPanelButton;
     private Button assignedPanelInfo;
 
+    // maps objects
     private View mapsPlaceholder;
     GoogleMap map;
     ArrayList<Marker> markers;
     LatLng start, end;
+
+    // barcode reader wrapper info
     static final int BARCODE_READER_ACTIVITY_REQUEST = 1;  // The request code
-    private String codeChecker = "\\d{8}";
+    private String codeChecker = barcode_checker_regexp;
 
 
+    /**
+     * View constructor
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        getActivity().setTitle("Order View");
+        // setting title on top of page
+        try {
+            getActivity().setTitle("Order View");
+
+        } catch (NullPointerException e) {
+            Log.e(TAG, e.getMessage());
+        }
+
         View view = inflater.inflate(R.layout.fragment_orderview, container, false);
 
+        // create controller
         controller = new OrderViewController(this);
-        variator = true;
+
+
+        // find elements in ui
         assignedPanel = view.findViewById(R.id.order_assigned_panel);
         orderDetails = view.findViewById(R.id.order_view_details);
         cancelButton = view.findViewById(R.id.order_view_cancel);
@@ -99,18 +118,23 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         assignedPanelInfo = view.findViewById(R.id.order_message);
         progressBar = view.findViewById(R.id.details_progress);
         mapsPlaceholder = view.findViewById(R.id.maps_placeholder);
-        customer_name = "";
-        customer_phone = "";
 
+        // initialize default values
+        variator = true;
+        customerName = "";
+        customerPhone = "";
+        orderId = "0";
+
+        // get extra from caller
         Bundle bundle = this.getArguments();
-        order_id = "0";
         if (bundle != null) {
-            order_id = bundle.getString("ORDER_ID_KEY", "0");
-            Log.d("ORDER_DET", order_id);
+            orderId = bundle.getString("ORDER_ID_KEY", "0");
+            Log.d(TAG, orderId);
         } else {
             Log.e(TAG, "Bundle is null");
         }
 
+        // assign action for cancel button
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,19 +143,29 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
             }
         });
 
+
         return view;
     }
 
+    /**
+     * this function is called when view is resumed
+     */
     @Override
     public void onResume() {
         super.onResume();
-        controller.loadDetailList(order_id);
+        controller.loadDetailList(orderId);
     }
 
+    /**
+     * Invoke loading of map with given coordinate pairs
+     *
+     * @param start Starting coordinate
+     * @param end   Destination coordinate
+     */
     public void loadMap(String start, String end) {
         showMapsPlaceholder(true);
         if (start == null || end == null) {
-            //show error panel
+            showNotification(getString(R.string.navigation_error_message));
             return;
         }
         this.start = locationFromString(start);
@@ -143,6 +177,9 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         mf.getMapAsync(this);
     }
 
+    /**
+     * Reset the view and show loading state
+     */
     @Override
     public void resetLoad() {
         showMapsPlaceholder(true);
@@ -151,6 +188,11 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     }
 
+    /**
+     * Invoke opening of calling menu in system
+     *
+     * @param number desired phone number
+     */
     @Override
     public void openCaller(String number) {
         Intent intent = new Intent(Intent.ACTION_DIAL);
@@ -158,6 +200,12 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         startActivity(intent);
     }
 
+    /**
+     * Convert string to 'latlng' location with defined rule for ';' separator
+     *
+     * @param s string containing location
+     * @return converted LatLng object
+     */
     public LatLng locationFromString(String s) {
         if (s == null) {
             return null;
@@ -166,27 +214,39 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         return new LatLng(Double.parseDouble(sa[0]), Double.parseDouble(sa[1]));
     }
 
+    /**
+     * this function is called when map api has finished loading resources for map
+     *
+     * @param googleMap map object
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.map = googleMap;
         drawRoute(start, end);
     }
 
+    /**
+     * Create routing request for map api
+     *
+     * @param start start coordinate
+     * @param end   end coordinate
+     */
     private void drawRoute(LatLng start, LatLng end) {
-        LatLng f1 = new LatLng(55.893270, 49.019864);
-        LatLng f2 = new LatLng(55.872593, 49.022668);
-        LatLng f3 = new LatLng(55.885258, 49.023553);
-        LatLng f4 = new LatLng(55.898021, 49.030424);
-
         Routing routing = new Routing.Builder()
                 .travelMode(Routing.TravelMode.DRIVING)
                 .withListener(this)
-                .waypoints(start, end) //f1,f3,f2,f4)
-                .key("AIzaSyCr5Uq134ZDPO-02wjPsUow2rwQrfKP99s")
+                .waypoints(start, end)
+                .key(getString(R.string.google_maps_api_key))
                 .build();
         routing.execute();
     }
 
+    /**
+     * Add single entity to details list
+     *
+     * @param key   Name of entity, shown in left column
+     * @param value Value of entity, shown in right column
+     */
     public void addDetailEntity(String key, String value) {
         TableRow row = new TableRow(getContext());
         Resources resource = getContext().getResources();
@@ -205,13 +265,11 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
         keyView.setText(key);
         valueView.setText(value);
-
-        //TODO: extract int resources
-
         final int pad = 7;
         keyView.setPadding(pad, pad, pad, pad);
         valueView.setPadding(pad, pad, pad, pad);
 
+        // text size is relative so no need to extract the values
         keyView.setTextSize(17);
         valueView.setTextSize(17);
 
@@ -226,6 +284,11 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         orderDetails.addView(row);
     }
 
+    /**
+     * Set a visibility of spinning progress bar indication, used to show that loading is in progress
+     *
+     * @param visibility true to show, false to hide
+     */
     @Override
     public void showProgressBar(boolean visibility) {
         if (visibility) {
@@ -237,65 +300,68 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     @Override
     public void setActionState(int state) {
-        this.actionState = state;
-        setAssignedPanelState(state);
-        if (state == 0) {
-            actionButton.setText("accept");
-            actionButton.setEnabled(true);
-            actionButton.setVisibility(View.VISIBLE);
-            actionButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.colorGreen));
-            actionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    controller.acceptOrder(order_id);
-                }
-            });
-        } else if (state == 1) {
-            actionButton.setText("decline");
-            actionButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.colorPrimaryDark));
-            actionButton.setEnabled(true);
-            actionButton.setVisibility(View.VISIBLE);
-            actionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    controller.cancelOrder(order_id);
-                }
-            });
-        } else if (state == 2) {
-            actionButton.setText("contact");
-            actionButton.setVisibility(View.VISIBLE);
-            actionButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.colorAccent));
-            actionButton.setEnabled(true);
-            actionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showCallSelector(customer_name, customer_phone);
-                }
-            });
-        } else if (state == 3) {
-            actionButton.setVisibility(View.INVISIBLE);
-            actionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // do nothing
-                }
-            });
+        try {
+            setAssignedPanelState(state);
+            if (state == 0) {
+                actionButton.setText(getString(R.string.accept_naming));
+                actionButton.setEnabled(true);
+                actionButton.setVisibility(View.VISIBLE);
+                actionButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.colorGreen));
+                actionButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        controller.acceptOrder(orderId);
+                    }
+                });
+            } else if (state == 1) {
+                actionButton.setText(getString(R.string.decline_naming));
+                actionButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.colorPrimaryDark));
+                actionButton.setEnabled(true);
+                actionButton.setVisibility(View.VISIBLE);
+                actionButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        controller.cancelOrder(orderId);
+                    }
+                });
+            } else if (state == 2) {
+                actionButton.setText(getString(R.string.contact_naming));
+                actionButton.setVisibility(View.VISIBLE);
+                actionButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.colorAccent));
+                actionButton.setEnabled(true);
+                actionButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showCallSelector(customerName, customerPhone);
+                    }
+                });
+            } else if (state == 3) {
+                actionButton.setVisibility(View.INVISIBLE);
+                actionButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // do nothing
+                    }
+                });
+            }
+        } catch (NullPointerException e) {
+            Log.e(TAG, e.getMessage());
         }
     }
 
     public void setAssignedPanelState(int state) {
         if (state == 0) {
-            assignedPanelButton.setText("available");
+            assignedPanelButton.setText(getString(R.string.available_naming));
             assignedPanelButton.setEnabled(false);
-            assignedPanelInfo.setText(Html.fromHtml("Press <b>ACCEPT</b> to assign order"));
+            assignedPanelInfo.setText(Html.fromHtml(getString(R.string.press_accept_info_message)));
             assignedPanelInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showNotification("Press <b>ACCEPT</b> button at the bottom of screen to request this order to be assigned to you.");
+                    showNotification(getString(R.string.accept_order_notif_message));
                 }
             });
         } else if (state == 1) {
-            assignedPanelButton.setText("pick");
+            assignedPanelButton.setText(getString(R.string.pick_naming));
             assignedPanelButton.setEnabled(true);
             assignedPanelButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -303,7 +369,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
                     receiveOrder();
                 }
             });
-            assignedPanelInfo.setText(Html.fromHtml("Click to locate warehouse"));
+            assignedPanelInfo.setText(Html.fromHtml(getString(R.string.press_locate_ware_message)));
             assignedPanelInfo.setEnabled(true);
             assignedPanelInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -315,7 +381,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
                 }
             });
         } else if (state == 2) {
-            assignedPanelButton.setText("deliver");
+            assignedPanelButton.setText(getString(R.string.seliver_naming));
             assignedPanelButton.setEnabled(true);
             assignedPanelButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -324,7 +390,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
                 }
             });
             assignedPanelInfo.setEnabled(true);
-            assignedPanelInfo.setText(Html.fromHtml("Press to locate destination"));
+            assignedPanelInfo.setText(Html.fromHtml(getString(R.string.press_locate_dest_message)));
             assignedPanelInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -335,7 +401,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
                 }
             });
         } else if (state == 3) {
-            assignedPanelButton.setText("unavailable");
+            assignedPanelButton.setText(getString(R.string.closed_naming));
             assignedPanelButton.setEnabled(true);
             assignedPanelButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -344,22 +410,33 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
                 }
             });
             assignedPanelInfo.setEnabled(true);
-            assignedPanelInfo.setText(Html.fromHtml("Press <b>CLOSE</b> and select another order"));
+            assignedPanelInfo.setText(Html.fromHtml(getString(R.string.order_unavailable_cancel_message)));
             assignedPanelInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showNotification("This order is either finished or unavailable to you :(");
+                    showNotification(getString(R.string.order_unavailable_status_message));
                 }
             });
         }
     }
 
+    /**
+     * Set customer data for this object corresponding to object it is assigned currently
+     *
+     * @param name  Name of customer
+     * @param phone Phone number of customer
+     */
     @Override
     public void setCustomer(String name, String phone) {
-        this.customer_name = name;
-        this.customer_phone = phone;
+        this.customerName = name;
+        this.customerPhone = phone;
     }
 
+    /**
+     * Make a call to invoke notification panel
+     *
+     * @param message - string that user should read
+     */
     @Override
     public void showNotification(String message) {
         try {
@@ -369,9 +446,12 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         }
     }
 
+    /**
+     * Construct a panel for order pick confirmation
+     */
     public void receiveOrder() {
         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-        alert.setTitle("Confirm parcel is picked for delivery: ");
+        alert.setTitle(getString(R.string.confirm_parcel_pick_query_message));
         final EditText input = new EditText(getContext());
         input.setGravity(Gravity.CENTER);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -379,7 +459,7 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         alert.setView(input);
         alert.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                controller.pickOrder(order_id, input.getText().toString());
+                controller.pickOrder(orderId, input.getText().toString());
             }
         });
         alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -397,6 +477,9 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         alert.show();
     }
 
+    /**
+     * collect results from activity 'launched for result'
+     */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -409,17 +492,20 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
             if (checkCodeFormat(barcode.rawValue)) {
                 // notification is shown from controller that processes the operation
             } else {
-                showNotification(String.format("Invalid barcode format, try typing manually", barcode.rawValue));
+                showNotification(getString(R.string.invalid_barcode_format_message));
             }
-            controller.pickOrder(order_id, barcode.rawValue);
+            controller.pickOrder(orderId, barcode.rawValue);
 
         }
 
     }
 
+    /**
+     * Construct panel for the order deliver confirmation
+     */
     public void deliverOrder() {
         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-        alert.setTitle("Enter code that customer has received: ");
+        alert.setTitle(getString(R.string.enter_code_query_message));
         final EditText input = new EditText(getContext());
         input.setGravity(Gravity.CENTER);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -427,18 +513,18 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         alert.setView(input);
         alert.setPositiveButton("CONFIRM", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                controller.deliverOrder(order_id, input.getText().toString());
+                controller.deliverOrder(orderId, input.getText().toString());
             }
         });
         alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //Put actions for CANCEL button here, or leave in blank
+                // no action is required
             }
         });
-        alert.setNeutralButton("RESEND CODE", new DialogInterface.OnClickListener() {
+        alert.setNeutralButton("SEND CODE", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                showNotification("RESENDING CODE");
+                controller.validateRecipient(orderId);
             }
         });
         alert.show();
@@ -446,17 +532,24 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
 
     @Override
     public void onRoutingFailure(RouteException e) {
-
+        showNotification(getString(R.string.routing_failed_message));
     }
 
+    /**
+     * this method is called when routing is initiated
+     */
     @Override
     public void onRoutingStart() {
-
+        // do nothing due to initial state of view is constructed by other fragment facilities
     }
 
+    /**
+     * This function is called when routing request is fulfilled and maps service retured data
+     */
     @Override
     public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex) {
         try {
+            // collect route segments
             showMapsPlaceholder(false);
             ArrayList<Polyline> polylines;
             polylines = new ArrayList<>();
@@ -473,16 +566,17 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
             // Start marker
             MarkerOptions options = new MarkerOptions();
             options.position(start);
-            options.title("Warehouse");
+            options.title(getString(R.string.warehouse_map_tag));
             map.addMarker(options);
 
             // End marker
             options = new MarkerOptions();
             options.position(end);
-            options.title("Destination");
+            options.title(getString(R.string.destination_map_tag));
             options.icon(getMarkerIcon("#840f82"));
             map.addMarker(options);
 
+            // find route bounds to fit on map
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
             for (Route r : route) {
                 for (LatLng l : r.getPoints())
@@ -490,27 +584,39 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
             }
             LatLngBounds bounds = builder.build();
 
+            // set padding so route won't contact edges of view
             int padding = 100; // offset from edges of the map in pixels
             CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
 
-            map.moveCamera(cu);
             map.animateCamera(cu);
         } catch (Exception e) {
             // Ignore exeptions since they arise on async call returning to empty fragment
         }
     }
 
+    /**
+     * Construct icon marker icon
+     *
+     * @param color hex color representation
+     * @return
+     */
     public BitmapDescriptor getMarkerIcon(String color) {
         float[] hsv = new float[3];
         Color.colorToHSV(Color.parseColor(color), hsv);
         return BitmapDescriptorFactory.defaultMarker(hsv[0]);
     }
 
+
     @Override
     public void onRoutingCancelled() {
-
+        // ignore due to this option is not possible
     }
 
+    /**
+     * while map is loading, set overlay with map icon
+     *
+     * @param visibility
+     */
     void showMapsPlaceholder(boolean visibility) {
         if (visibility) {
             mapsPlaceholder.setVisibility(View.VISIBLE);
@@ -519,6 +625,12 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         }
     }
 
+    /**
+     * Construct a menu with calling options
+     *
+     * @param recipientName   name of recipient
+     * @param recipientNumber phone number of recipient
+     */
     public void showCallSelector(String recipientName, String recipientNumber) {
         AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
         alert.setTitle("Contact");
@@ -562,6 +674,12 @@ public class OrderViewFragment extends Fragment implements OrderViewMVC.View, Ro
         alert.show();
     }
 
+    /**
+     * Check if given value matches application defined code format
+     *
+     * @param val value to be checker
+     * @return true if it matches the format, false otherwise
+     */
     public boolean checkCodeFormat(String val) {
         return val.matches(codeChecker);
     }

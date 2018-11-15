@@ -120,45 +120,45 @@ public class ItemResponseModel {
         return error;
     }
 
-    public List<Pair<String, String>> getAvailableParameters(){
+    public List<Pair<String, String>> getAvailableParameters() {
         List<Pair<String, String>> notNullEntries = new ArrayList<>();
-        if(orderId!=null){
+        if (orderId != null) {
             notNullEntries.add(new Pair<>("Order ID", orderId));
         }
-        if(title!=null){
+        if (title != null) {
             notNullEntries.add(new Pair<>("Title", title));
         }
-        if(weight!=null){
+        if (weight != null) {
             notNullEntries.add(new Pair<>("Weight", weight));
         }
-        if(dimensions!=null){
+        if (dimensions != null) {
             notNullEntries.add(new Pair<>("Dimensions", dimensions));
         }
-        if(state!=null){
+        if (state != null) {
             notNullEntries.add(new Pair<>("Status", state));
         }
-        if(orderType!=null){
+        if (orderType != null) {
             notNullEntries.add(new Pair<>("Order Type", orderType));
         }
-        if(warehouseAddress!=null){
+        if (warehouseAddress != null) {
             notNullEntries.add(new Pair<>("Warehouse Address", warehouseAddress));
         }
-        if(recipientAddress!=null){
+        if (recipientAddress != null) {
             notNullEntries.add(new Pair<>("Recipient Address", recipientAddress));
         }
-        if(deliveryTimeFrom!=null){
+        if (deliveryTimeFrom != null) {
             notNullEntries.add(new Pair<>("Delivery From", deliveryTimeFrom));
         }
-        if(deliveryTimeTo!=null){
+        if (deliveryTimeTo != null) {
             notNullEntries.add(new Pair<>("Delivery To", deliveryTimeTo));
         }
-        if(recipientName!=null){
+        if (recipientName != null) {
             notNullEntries.add(new Pair<>("Recipient Name", recipientName));
         }
-        if(recipientPhone!=null){
+        if (recipientPhone != null) {
             notNullEntries.add(new Pair<>("Recipient Phone", recipientPhone));
         }
-        if(assignedTo!=null){
+        if (assignedTo != null) {
             notNullEntries.add(new Pair<>("Assigned To", assignedTo));
         }
         return notNullEntries;

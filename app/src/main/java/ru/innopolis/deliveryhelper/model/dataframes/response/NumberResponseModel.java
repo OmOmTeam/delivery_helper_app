@@ -9,8 +9,9 @@ public class NumberResponseModel {
     private String error;
 
     public String getNumber() {
-        return error;
+        return number;
     }
+
     public String getError() {
         return error;
     }

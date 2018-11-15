@@ -84,6 +84,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="IP"
+            android:visibility="gone"
             android:inputType="textPersonName" />
     </android.support.design.widget.TextInputLayout>
 

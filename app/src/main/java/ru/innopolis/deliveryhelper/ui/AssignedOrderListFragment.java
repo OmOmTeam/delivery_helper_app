@@ -2,6 +2,7 @@ package ru.innopolis.deliveryhelper.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,19 +14,17 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.apache.commons.lang3.ObjectUtils;
-
-import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import ru.innopolis.deliveryhelper.OrderListMVC;
 import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.controller.AssignedOrderListController;
-import ru.innopolis.deliveryhelper.controller.OrderListController;
 import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseModel;
+
+import static ru.innopolis.deliveryhelper.model.PlainConsts.optimal_order_template;
 
 public class AssignedOrderListFragment extends Fragment implements OrderListMVC.View {
 
@@ -43,6 +42,7 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
     private View suggestionPanel;
     private TextView suggestionContent;
     private Button suggestionButton;
+    private SwipeRefreshLayout swipeRefresh;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,21 +50,22 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
         View view = inflater.inflate(R.layout.fragment_assigned_order_list, container, false);
 
         // set the title for page
-        try{
+        try {
             getActivity().setTitle("Assigned Orders");
-        }catch(NullPointerException e){
+        } catch (NullPointerException e) {
             Log.e(TAG, e.getMessage());
         }
 
         // create controller
         controller = new AssignedOrderListController(this);
 
-        //
+        // find ui elements in view
         listView = view.findViewById(R.id.all_orders_listview);
         emptyListInfo = view.findViewById(R.id.empty_list_info);
         suggestionPanel = view.findViewById(R.id.suggestion_panel);
         suggestionContent = view.findViewById(R.id.suggestion_message);
         suggestionButton = view.findViewById(R.id.suggestion_button);
+        swipeRefresh = view.findViewById(R.id.swiperefresh);
 
         // ensure that suggestion is closed while page is loading
         setSuggestionPanelVisibie(false);
@@ -78,9 +79,27 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
                 }
             });
         } catch (NullPointerException e) {
-            Log.e("NULL CAUGHT", e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
+
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                controller.loadOrderList();
+            }
+        });
+
         return view;
+    }
+
+    /**
+     * Hide spinner animation in after scrollview refresh complete
+     */
+    @Override
+    public void hideRefreshing() {
+        if (swipeRefresh.isRefreshing()) {
+            swipeRefresh.setRefreshing(false);
+        }
     }
 
     /**
@@ -91,7 +110,7 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
         if (index >= 0) {
             List<ItemHeaderResponseModel> list = oAdapter.getOrderList();
             ItemHeaderResponseModel order = list.get(index);
-            setSuggestionPanelContent(String.format("<big>Optimal Order for delivery:<br><b>%s</b><br><h5>Time period:<br> %s - %s</h5></big>",
+            setSuggestionPanelContent(String.format(optimal_order_template,
                     order.getTitle(), order.getDeliveryTimeFrom(), order.getDeliveryTimeTo()));
             setSuggestionReferrer(order.getOrderId());
             setSuggestionPanelVisibie(true);
@@ -130,6 +149,7 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
 
     /**
      * Show or hide message overlay telling that the list is empty
+     *
      * @param visibility true to show, false otherwise
      */
     public void showEmptyListInfo(boolean visibility) {
@@ -151,6 +171,7 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
 
     /**
      * Insert list data into list view
+     *
      * @param orderList list of actual order elements
      */
     public void updateList(List<ItemHeaderResponseModel> orderList) {
@@ -162,10 +183,11 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
                 showEmptyListInfo(false);
                 oAdapter = new AssignedOrderEntryAdapter(getContext(), orderList);
                 listView.setAdapter(oAdapter);
+                makeOptimalOrderSuggestion();
             }
-            makeOptimalOrderSuggestion();
+
         } catch (NullPointerException e) {
-            Log.e("NULL CAUGHT", e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -180,7 +202,7 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
                 progressBar.setVisibility(View.GONE);
             }
         } catch (NullPointerException e) {
-            Log.e("NULL CAUGHT", e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -195,7 +217,7 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
                 progressBar.setVisibility(View.VISIBLE);
             }
         } catch (NullPointerException e) {
-            Log.e("NULL CAUGHT", e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -210,6 +232,7 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
 
     /**
      * Show a notification to user
+     *
      * @param message - string that user should read
      */
     @Override
@@ -219,6 +242,7 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
 
     /**
      * Show or hide suggestion panel for optimal order
+     *
      * @param state true to show, false otherwise
      */
     public void setSuggestionPanelVisibie(boolean state) {
@@ -231,6 +255,7 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
 
     /**
      * Set content for the order that will be actually shown as optimal order
+     *
      * @param content string with html formatting
      */
     public void setSuggestionPanelContent(String content) {
@@ -239,6 +264,7 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
 
     /**
      * Set action to open order view with optimal order
+     *
      * @param orderId the id of optimal order in suggestion panel
      */
     public void setSuggestionReferrer(String orderId) {
@@ -246,14 +272,18 @@ public class AssignedOrderListFragment extends Fragment implements OrderListMVC.
             suggestionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ((ContainerActivity) getActivity()).openOrderView(orderId);
+                    try {
+                        ((ContainerActivity) getActivity()).openOrderView(orderId);
+                    } catch (NullPointerException e) {
+                        Log.e(TAG, e.getMessage());
+                    }
                 }
             });
         } else {
             suggestionButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    // set empty listener
                 }
             });
         }

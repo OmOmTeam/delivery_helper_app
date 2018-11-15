@@ -20,6 +20,13 @@ import java.util.List;
 import ru.innopolis.deliveryhelper.R;
 import ru.innopolis.deliveryhelper.model.dataframes.response.ItemHeaderResponseModel;
 
+import static ru.innopolis.deliveryhelper.model.PlainConsts.order_status_code_picked;
+import static ru.innopolis.deliveryhelper.model.PlainConsts.order_type_code_bparcel;
+import static ru.innopolis.deliveryhelper.model.PlainConsts.order_type_code_letter;
+import static ru.innopolis.deliveryhelper.model.PlainConsts.order_type_code_palette;
+import static ru.innopolis.deliveryhelper.model.PlainConsts.order_type_code_sparcel;
+import static ru.innopolis.deliveryhelper.model.PlainConsts.picked_order_naming;
+
 public class AssignedOrderEntryAdapter extends ArrayAdapter<ItemHeaderResponseModel> {
     private Context oContext;
     private List<ItemHeaderResponseModel> orderList = new ArrayList<>();
@@ -40,6 +47,7 @@ public class AssignedOrderEntryAdapter extends ArrayAdapter<ItemHeaderResponseMo
         if (listItem == null)
             listItem = LayoutInflater.from(oContext).inflate(R.layout.assigned_order_entry_listitem, parent, false);
 
+        // find elements in UI
         final ItemHeaderResponseModel currentEntry = orderList.get(position);
         ImageView image = listItem.findViewById(R.id.order_entry_icon);
         TextView title = listItem.findViewById(R.id.order_entry_title);
@@ -47,29 +55,32 @@ public class AssignedOrderEntryAdapter extends ArrayAdapter<ItemHeaderResponseMo
         TextView weight = listItem.findViewById(R.id.order_entry_sub_2);
         Button acceptEntryButton = listItem.findViewById(R.id.order_accept_button);
 
-        if(currentEntry.getStateCode().equals("2")){
-            acceptEntryButton.setText("picked");
+        // modify element display badge if order status is 'picked'
+        if (currentEntry.getStateCode().equals(order_status_code_picked)) {
+            acceptEntryButton.setText(picked_order_naming);
             acceptEntryButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.colorGreen));
         }
 
+        // set icon based on order type
         String orderType = currentEntry.getOrderType();
         switch (orderType) {
-            case "0":
+            case order_type_code_letter:
                 image.setImageResource(R.drawable.icon_letter);
                 break;
-            case "1":
+            case order_type_code_sparcel:
                 image.setImageResource(R.drawable.small_box);
                 break;
-            case "2":
+            case order_type_code_bparcel:
                 image.setImageResource(R.drawable.large_box);
                 break;
-            case "3":
+            case order_type_code_palette:
                 image.setImageResource(R.drawable.pallette);
                 break;
             default:
                 image.setImageResource(R.drawable.icon_letter);
         }
 
+        // set text in information preview on entry
         title.setText(currentEntry.getTitle());
         dimensions.setText(currentEntry.getDimensions());
         weight.setText(currentEntry.getWeight());
@@ -77,8 +88,7 @@ public class AssignedOrderEntryAdapter extends ArrayAdapter<ItemHeaderResponseMo
         return listItem;
     }
 
-    public List<ItemHeaderResponseModel> getOrderList()
-    {
+    public List<ItemHeaderResponseModel> getOrderList() {
         return orderList;
     }
 }

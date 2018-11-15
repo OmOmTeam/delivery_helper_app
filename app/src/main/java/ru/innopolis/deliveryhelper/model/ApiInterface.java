@@ -18,6 +18,9 @@ public interface ApiInterface {
     @POST("login")
     Call<LoginResponseModel> login(@Body RequestBody credentials);
 
+    @POST("logout")
+    Call<AcceptanceModel> logout(@Header("Token") String token, @Body RequestBody parameters);
+
     @POST("available_orders")
     Call<List<ItemHeaderResponseModel>> getOrderList(@Header("Token") String token);
 

@@ -11,6 +11,7 @@ public interface OrderListMVC {
         void clearList();
         void hideProgressBar();
         void showProgressBar();
+        void hideRefreshing();
     }
     interface Controller {
         void loadOrderList();

@@ -1,6 +1,5 @@
 package ru.innopolis.deliveryhelper.controller;
 
-import android.text.Html;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -14,10 +13,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import ru.innopolis.deliveryhelper.LoginMVC;
 import ru.innopolis.deliveryhelper.model.ApiInterface;
-import ru.innopolis.deliveryhelper.model.dataframes.request.LoginRequestModel;
-import ru.innopolis.deliveryhelper.model.dataframes.response.LoginResponseModel;
 import ru.innopolis.deliveryhelper.model.RetrofitService;
 import ru.innopolis.deliveryhelper.model.SafeStorage;
+import ru.innopolis.deliveryhelper.model.dataframes.request.LoginRequestModel;
+import ru.innopolis.deliveryhelper.model.dataframes.response.LoginResponseModel;
+
+import static ru.innopolis.deliveryhelper.model.PlainConsts.internal_server_error_message;
 
 public class LoginController implements LoginMVC.Controller {
 
@@ -34,12 +35,12 @@ public class LoginController implements LoginMVC.Controller {
 
     /**
      * Request user login with credentials, on success store the token in safe storage
-     * @param login employee id
+     *
+     * @param login    employee id
      * @param password password corresponding to given employee id
      */
     @Override
     public void tryLogin(final String login, final String password) {
-        //TODO: check login and password validity
         try {
             LoginRequestModel requestModel = new LoginRequestModel(login, SafeStorage.hash(password));
             Call<LoginResponseModel> call = api.login(RequestBody.create(MediaType.parse("application/json"), gson.toJson(requestModel)));
@@ -62,7 +63,7 @@ public class LoginController implements LoginMVC.Controller {
                             view.showNotification(String.format("<b>%s</b>", lrm.getErrorMessage()));
                         }
                     } else {
-                        view.showNotification("<b>Internal server error</b>, please contact app provider.");
+                        view.showNotification(internal_server_error_message);
                     }
                 }
 

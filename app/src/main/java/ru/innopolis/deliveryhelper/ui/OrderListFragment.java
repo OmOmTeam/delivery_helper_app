@@ -2,6 +2,7 @@ package ru.innopolis.deliveryhelper.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,8 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View {
     private OrderListMVC.Controller controller;
     private ProgressBar progressBar;
     private View emptyListInfo;
+    private SwipeRefreshLayout swipeRefresh;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,6 +46,8 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View {
         listView = view.findViewById(R.id.all_orders_listview);
         controller = new OrderListController(this);
         emptyListInfo = view.findViewById(R.id.empty_list_info);
+        swipeRefresh = view.findViewById(R.id.swiperefresh);
+
 
         // assign actions for items of the list view
         try {
@@ -56,17 +61,40 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View {
             Log.e(TAG, e.getMessage());
         }
 
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                controller.loadOrderList();
+            }
+        });
+
         return view;
     }
 
-    // perform reload when given view is reopened
+    /**
+     * Hide spinner animation in after scrollview refresh complete
+     */
+    @Override
+    public void hideRefreshing(){
+        if (swipeRefresh.isRefreshing()) {
+            swipeRefresh.setRefreshing(false);
+        }
+    }
+
+    /**
+     * Perform actions when app is reopened
+     */
     @Override
     public void onResume() {
         super.onResume();
         controller.loadOrderList();
     }
 
-    //
+    /**
+     * Insert list data into list view
+     *
+     * @param orderList list of actual order elements
+     */
     public void updateList(List<ItemHeaderResponseModel> orderList) {
         try {
             if (orderList.isEmpty()){
@@ -82,6 +110,12 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View {
         }
     }
 
+
+    /**
+     * Show or hide message overlay telling that the list is empty
+     *
+     * @param visibility true to show, false otherwise
+     */
     public void showEmptyListInfo(boolean visibility){
         if(visibility){
             emptyListInfo.setVisibility(View.VISIBLE);
@@ -90,6 +124,9 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View {
         }
     }
 
+    /**
+     * Hide spinning load indicator over the list view
+     */
     @Override
     public void hideProgressBar() {
         try {
@@ -98,10 +135,13 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View {
                 progressBar.setVisibility(View.GONE);
             }
         } catch (NullPointerException e) {
-            Log.e("NULL CAUGHT", e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
     }
 
+    /**
+     * Show spinning load indicator over the list view
+     */
     @Override
     public void showProgressBar() {
         try {
@@ -110,7 +150,7 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View {
                 progressBar.setVisibility(View.VISIBLE);
             }
         } catch (NullPointerException e) {
-            Log.e("NULL CAUGHT", e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -123,12 +163,18 @@ public class OrderListFragment extends Fragment implements OrderListMVC.View {
         }
     }
 
+
+    /**
+     * Show a notification to user
+     *
+     * @param message - string that user should read
+     */
     @Override
     public void showNotification(String message) {
         try {
             ((ContainerActivity) getActivity()).showNotification(message);
         } catch (NullPointerException e) {
-            Log.e("NULL CAUGHT", e.getMessage());
+            Log.e(TAG, e.getMessage());
         }
     }
 }

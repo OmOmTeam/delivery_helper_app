@@ -18,6 +18,7 @@ public class SafeStorage {
     static public void setUsername(String username) {
         SecurePreferences.setValue(USERNAME, username);
     }
+
     static public String getUsername() {
         return SecurePreferences.getStringValue(USERNAME, null);
     }
@@ -25,6 +26,7 @@ public class SafeStorage {
     static public void setPassword(String password) {
         SecurePreferences.setValue(PASSWORD, password);
     }
+
     static public String getPassword() {
         return SecurePreferences.getStringValue(PASSWORD, null);
     }
@@ -32,13 +34,15 @@ public class SafeStorage {
     static public void setToken(String token) {
         SecurePreferences.setValue(TOKEN, token);
     }
+
     static public String getToken() {
-        return SecurePreferences.getStringValue(TOKEN,null);
+        return SecurePreferences.getStringValue(TOKEN, null);
     }
 
     static public void setAddress(String address) {
         SecurePreferences.setValue(ADDRESS, address);
     }
+
     static public String getAddress() {
         return SecurePreferences.getStringValue(ADDRESS, null);
     }
@@ -58,6 +62,7 @@ public class SafeStorage {
 
     public static String hash(String input) throws NoSuchAlgorithmException {
         return input;
+        // commented due to hashing is disabled on data cluster
         //return bytesToHexString(MessageDigest.getInstance("SHA-256").digest(input.getBytes(StandardCharsets.UTF_8)));
     }
 
