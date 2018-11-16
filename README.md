@@ -16,3 +16,5 @@ https://github.com/square/retrofit
 ## Build note
   barcode-reader folder has to be included as module, it may not do so if for example imported in Intellij Idea (or Android Studio). So it may be needed to do so manually on import.
   Build is done with gradle.
+## Application Interface can be found here:
+  https://hackmd.io/7qWNHwKjTOCiOlkLuYYgmQ
